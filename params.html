@@ -665,6 +665,17 @@
       <div class="param-comment">Taux du préavis (9.99 = Pas de préavis)</div>
     </div>
 
+    <!-- Code de sécurité -->
+    <div class="group-header" style="background:#1a1220; color:#c084fc;">🔒 Accès</div>
+    <div class="param-row" style="background:#14101c;">
+      <div class="param-key" style="color:#c084fc;">Code</div>
+      <div class="param-label">Code de sécurité</div>
+      <div class="param-input-wrap">
+        <input type="password" id="securityCode" class="param-input" placeholder="••••••••" autocomplete="off">
+      </div>
+      <div class="param-comment">Requis pour enregistrer les modifications dans Firebase</div>
+    </div>
+
   </div>
 </main>
 
@@ -678,6 +689,13 @@ function setStatus(msg, type = '') {
 }
 
 async function saveParams() {
+  const code = document.getElementById('securityCode').value;
+  if (code !== 'CFE-CGC') {
+    setStatus('❌ Code de sécurité incorrect.', 'error');
+    document.getElementById('securityCode').focus();
+    return;
+  }
+
   setStatus('Enregistrement…', 'saving');
 
   const keys = ['B3','E3','E4','E5','E6','E7','E8','E9','E10','E11','E12','E13','E14','E15',
