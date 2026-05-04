@@ -1,69 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Simulation RCC</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Simulation RCC</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="container">
+  <div class="container">
 
     <div class="nav">
-        <a href="rcc_param.html">Paramètres</a>
-        <a href="sim_rcc.html">Simulation</a>
+      <a href="rcc_param.html">Paramètres</a>
+      <a href="sim_rcc.html">Simulation</a>
     </div>
 
     <h1>Simulation RCC</h1>
 
     <table class="table">
 
-        <tr>
-            <td>Date de référence</td>
-            <td><input class="dynamic" type="date" id="refDate"></td>
-        </tr>
+      <tr>
+        <td>Date de référence</td>
+        <td>
+          <input class="dynamic" type="date" id="refDate">
+        </td>
+      </tr>
 
-        <tr>
-            <td>Statut</td>
-            <td>
-                <select class="dynamic" id="statut">
-                    <option>Cadre</option>
-                    <option>Non cadre</option>
-                </select>
-            </td>
-        </tr>
+      <tr>
+        <td>Date de naissance</td>
+        <td>
+          <input class="dynamic" type="date" id="birthDate">
+        </td>
+      </tr>
 
-        <tr>
-            <td>Dispositif</td>
-            <td>
-                <select class="dynamic" id="dispositif">
-                    <option>CFC</option>
-                    <option>Mobilité</option>
-                </select>
-            </td>
-        </tr>
+      <tr>
+        <td>Date d'entrée</td>
+        <td>
+          <input class="dynamic" type="date" id="entryDate">
+        </td>
+      </tr>
 
-        <tr>
-            <td>Date de naissance</td>
-            <td><input class="dynamic" type="date" id="birthDate"></td>
-        </tr>
-
-        <tr>
-            <td>Date d'entrée</td>
-            <td><input class="dynamic" type="date" id="entryDate"></td>
-        </tr>
-
-        <tr>
-            <td>Salaire annuel brut</td>
-            <td><input class="dynamic" type="number" id="annualSalary"></td>
-        </tr>
-
-        <tr>
-            <td>Forcer ILL</td>
-            <td>
-                <input type="checkbox" id="forcerILL">
-            </td>
-        </tr>
+      <tr>
+        <td>Salaire annuel brut</td>
+        <td>
+          <input class="dynamic" type="number" id="annualSalary">
+        </td>
+      </tr>
 
     </table>
 
@@ -72,78 +55,81 @@
     <h2>Résultats</h2>
 
     <table class="table">
-        <tbody id="results"></tbody>
+      <tbody id="results"></tbody>
     </table>
 
-</div>
+  </div>
 
-<script src="rcc.js"></script>
+  <script src="rcc.js"></script>
 
-<script>
-function formatEuro(value) {
-    return new Intl.NumberFormat('fr-FR', {
+  <script>
+
+    function euro(value) {
+
+      return new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'EUR'
-    }).format(value);
-}
+      }).format(value);
+    }
 
-function simulate() {
+    function simulate() {
 
-    const data = {
+      const data = {
         refDate: document.getElementById('refDate').value,
-        statut: document.getElementById('statut').value,
-        dispositif: document.getElementById('dispositif').value,
         birthDate: document.getElementById('birthDate').value,
         entryDate: document.getElementById('entryDate').value,
-        annualSalary: document.getElementById('annualSalary').value,
-        forcerILL: document.getElementById('forcerILL').checked
-    };
+        annualSalary: document.getElementById('annualSalary').value
+      };
 
-    const params = loadParams();
+      const params = loadParams();
 
-    const result = calculateRCC(data, params);
+      const result = calculateRCC(data, params);
 
-    const tbody = document.getElementById('results');
+      document.getElementById('results').innerHTML = `
 
-    tbody.innerHTML = `
         <tr>
-            <td>Age</td>
-            <td class="result">${result.age.toFixed(2)} ans</td>
+          <td>Age</td>
+          <td class="result">${result.age.toFixed(2)} ans</td>
         </tr>
 
         <tr>
-            <td>Ancienneté</td>
-            <td class="result">${result.seniority.toFixed(2)} ans</td>
+          <td>Ancienneté</td>
+          <td class="result">${result.seniority.toFixed(2)} ans</td>
         </tr>
 
         <tr>
-            <td>Salaire mensuel</td>
-            <td class="result">${formatEuro(result.monthlySalary)}</td>
+          <td>Salaire mensuel</td>
+          <td class="result">${euro(result.monthlySalary)}</td>
         </tr>
 
         <tr>
-            <td>Indemnité retenue</td>
-            <td class="result">${formatEuro(result.indemniteRetenue)}</td>
+          <td>Indemnité finale</td>
+          <td class="result">${euro(result.indemniteFinale)}</td>
         </tr>
 
         <tr>
-            <td>Supra-légale</td>
-            <td class="result">${formatEuro(result.supra)}</td>
+          <td>Durée dispositif</td>
+          <td class="result">${result.duree} mois</td>
         </tr>
 
         <tr>
-            <td>Total avant plafond</td>
-            <td class="result">${formatEuro(result.totalAvantPlafond)}</td>
+          <td>Rémunération mensuelle</td>
+          <td class="result">${euro(result.remunerationMensuelle)}</td>
         </tr>
 
         <tr>
-            <td>Total avec plafond</td>
-            <td class="result">${formatEuro(result.totalAvecPlafond)}</td>
+          <td>Rémunération totale</td>
+          <td class="result">${euro(result.remunerationTotale)}</td>
         </tr>
 
         <tr>
-            <td>Rémunération mensuelle</td>
-            <td class="result">${formatEuro(result.remunerationMensuelle)}</td>
+          <td>Total global</td>
+          <td class="result">${euro(result.totalGlobal)}</td>
         </tr>
+      `;
+    }
 
+  </script>
+
+</body>
 </html>
