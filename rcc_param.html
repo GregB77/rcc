@@ -1,32 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RCC - Paramètres</title>
-  <link rel="stylesheet" href="rcc_param.css" />
+<meta charset="UTF-8">
+<title>Paramètres RCC</title>
+<style>
+body { font-family: Arial; padding:20px; }
+input { margin:5px; }
+.section { margin-bottom:20px; }
+</style>
 </head>
+
 <body>
-  <header class="topbar">
-    <h1>RCC – Paramètres (E2:G36)</h1>
-    <div class="actions">
-      <button id="btnReset" type="button">Réinitialiser</button>
-      <button id="btnSave" type="button" class="primary">Enregistrer</button>
-      <a class="primary" href="sim_rcc.html">Ouvrir le simulateur</a>
-    </div>
-  </header>
 
-  <main class="container">
-    <p class="hint">Cette page correspond à la zone <strong>E2:G36</strong> de la feuille <strong>"RCC avec Préavis"</strong>. Toutes les valeurs sont modifiables et sont sauvegardées en local (LocalStorage).</p>
+<h2>Paramètres RCC</h2>
 
-    <section id="paramContainer"></section>
+<div class="section">
+    <h3>Données d'entrée</h3>
 
-    <details class="debug">
-      <summary>Données (diagnostic)</summary>
-      <pre id="debug"></pre>
-    </details>
-  </main>
+    <label>Date de référence</label>
+    <input type="date" id="date_ref"><br>
 
-  <script src="rcc_param.js"></script>
+    <label>Statut</label>
+    <select id="statut">
+        <option>Cadre</option>
+        <option>Non cadre</option>
+    </select><br>
+
+    <label>Dispositif</label>
+    <select id="dispositif">
+        <option>CFC</option>
+        <option>Mobilité</option>
+    </select><br>
+
+    <label>Date de naissance</label>
+    <input type="date" id="naissance"><br>
+
+    <label>Date d'entrée</label>
+    <input type="date" id="entree"><br>
+
+    <label>Salaire annuel</label>
+    <input type="number" id="salaire_annuel"><br>
+
+</div>
+
+<div class="section">
+    <h3>Paramètres légaux</h3>
+
+    <label>ILL ancienneté min (mois)</label>
+    <input type="number" id="ill_min" value="8"><br>
+
+    <label>Taux 0-10 ans</label>
+    <input type="number" step="0.01" id="taux1" value="0.25"><br>
+
+    <label>Taux >10 ans</label>
+    <input type="number" step="0.01" id="taux2" value="0.33"><br>
+
+</div>
+
+<button onclick="save()">💾 Sauvegarder</button>
+<a href="sim_rcc.html">➡️ Lancer simulation</a>
+
+<script>
+function save() {
+    const data = {
+        date_ref: document.getElementById('date_ref').value,
+        statut: document.getElementById('statut').value,
+        dispositif: document.getElementById('dispositif').value,
+        naissance: document.getElementById('naissance').value,
+        entree: document.getElementById('entree').value,
+        salaire_annuel: parseFloat(document.getElementById('salaire_annuel').value),
+        ill_min: parseFloat(document.getElementById('ill_min').value),
+        taux1: parseFloat(document.getElementById('taux1').value),
+        taux2: parseFloat(document.getElementById('taux2').value)
+    };
+
+    localStorage.setItem("rcc_data", JSON.stringify(data));
+    alert("Données sauvegardées !");
+}
+</script>
+
 </body>
 </html>
