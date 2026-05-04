@@ -1,55 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Paramètres RCC</title>
+
+<style>
+body {
+    font-family: "Segoe UI", Arial;
+    background:#f5f7fa;
+    padding:20px;
+}
+
+.container {
+    max-width:900px;
+    margin:auto;
+}
+
+.card {
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom:20px;
+}
+
+h2 {
+    margin-top:0;
+}
+
+.section-title {
+    margin-top:15px;
+    color:#0a58ca;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:10px;
+}
+
+label {
+    font-size:13px;
+    color:#555;
+}
+
+input {
+    width:100%;
+    padding:6px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+button {
+    padding:10px 15px;
+    border:none;
+    border-radius:6px;
+    background:#0a58ca;
+    color:white;
+    cursor:pointer;
+}
+
+.topbar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="topbar">
+    <h2>Paramètres RCC</h2>
+    <a href="sim_rcc.html"><button>⬅ Retour simulateur</button></a>
+</div>
+
 <div id="form"></div>
+
+<button onclick="save()">💾 Enregistrer</button>
+
+</div>
 
 <script>
 
+const API_URL = "http://localhost:3000/params";
+
+// libellés propres (optionnel mais important UX)
+const labels = {
+    ill: {
+        anciennete_min_mois: "Ancienneté minimale (mois)",
+        taux_0_10: "Taux 0-10 ans",
+        taux_10_plus: "Taux >10 ans"
+    },
+    mobilite: {
+        seuil_cadre: "Seuil ancienneté cadre",
+        seuil_coeff: "Seuil coefficient",
+        coeff_1: "Coefficient 1",
+        coeff_2: "Coefficient 2"
+    },
+    bonus_age: {
+        anciennete_min: "Ancienneté min bonus",
+        bonus_50_55: "Bonus 50-55",
+        bonus_55_60: "Bonus 55-60",
+        plancher_50_55: "Plancher 50-55 (mois)",
+        plancher_55_60: "Plancher 55-60 (mois)"
+    },
+    plafonds: {
+        max_mois: "Plafond (mois)"
+    },
+    minoration: {
+        active: "Activer minoration",
+        age_61: "Décote 61 ans",
+        age_62: "Décote 62 ans",
+        age_63: "Décote 63 ans",
+        age_64: "Décote 64 ans"
+    },
+    supra: {
+        coef_max: "Coefficient max",
+        coef_annee: "Coefficient annuel"
+    },
+    preavis: {
+        cadre: "Préavis cadre (mois)",
+        non_cadre: "Préavis non cadre (mois)"
+    },
+    divers: {
+        plafond_secu: "Plafond sécurité sociale",
+        multiple_pass: "Multiple PASS"
+    }
+};
+
+let params = {};
+
 async function load() {
-    const res = await fetch("params");
-    const params = await res.json();
+    const res = await fetch(API_URL);
+    params = await res.json();
+
+    renderForm();
+}
+
+function renderForm() {
 
     const container = document.getElementById("form");
     container.innerHTML = "";
 
     for (let section in params) {
 
-        const block = document.createElement("div");
-        block.innerHTML = `<h3>${section}</h3>`;
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.className = "section-title";
+        title.innerText = section.toUpperCase();
+
+        card.appendChild(title);
+
+        const grid = document.createElement("div");
+        grid.className = "grid";
 
         for (let key in params[section]) {
 
             const value = params[section][key];
 
-            block.innerHTML += `
-                <label>${key}</label>
-                <input data-section="${section}" data-key="${key}" value="${value}">
-                <br>
-            `;
+            const wrapper = document.createElement("div");
+
+            const label = document.createElement("label");
+            label.innerText = labels[section]?.[key] || key;
+
+            let input;
+
+            if (typeof value === "boolean") {
+                input = document.createElement("input");
+                input.type = "checkbox";
+                input.checked = value;
+            } else {
+                input = document.createElement("input");
+                input.type = "number";
+                input.step = "any";
+                input.value = value;
+            }
+
+            input.dataset.section = section;
+            input.dataset.key = key;
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+
+            grid.appendChild(wrapper);
         }
 
-        container.appendChild(block);
+        card.appendChild(grid);
+        container.appendChild(card);
     }
 }
 
 async function save() {
 
     const inputs = document.querySelectorAll("input");
-    const params = {};
+    const updated = {};
 
     inputs.forEach(input => {
+
         const section = input.dataset.section;
         const key = input.dataset.key;
 
-        if (!params[section]) params[section] = {};
+        if (!updated[section]) updated[section] = {};
 
-        params[section][key] = parseFloat(input.value);
+        if (input.type === "checkbox") {
+            updated[section][key] = input.checked;
+        } else {
+            updated[section][key] = parseFloat(input.value);
+        }
     });
 
-    await fetch("http://localhost:3000/params", {
+    await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params)
+        body: JSON.stringify(updated)
     });
 
-    alert("Sauvegardé !");
+    alert("Paramètres enregistrés avec succès");
 }
 
+load();
+
 </script>
+
+</body>
+</html>
