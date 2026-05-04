@@ -24,15 +24,6 @@ body {
     margin-bottom:20px;
 }
 
-h2 {
-    margin-top:0;
-}
-
-.section-title {
-    margin-top:15px;
-    color:#0a58ca;
-}
-
 .grid {
     display:grid;
     grid-template-columns: repeat(2, 1fr);
@@ -59,13 +50,6 @@ button {
     color:white;
     cursor:pointer;
 }
-
-.topbar {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
 </style>
 
 </head>
@@ -73,72 +57,33 @@ button {
 <body>
 
 <div class="container">
-
-<div class="topbar">
-    <h2>Paramètres RCC</h2>
-    <a href="sim_rcc.html"><button>⬅ Retour simulateur</button></a>
-</div>
+<h2>Paramètres RCC</h2>
 
 <div id="form"></div>
 
 <button onclick="save()">💾 Enregistrer</button>
-
 </div>
 
-<script>
+<script type="module">
 
-const API_URL = "params";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// libellés propres (optionnel mais important UX)
-const labels = {
-    ill: {
-        anciennete_min_mois: "Ancienneté minimale (mois)",
-        taux_0_10: "Taux 0-10 ans",
-        taux_10_plus: "Taux >10 ans"
-    },
-    mobilite: {
-        seuil_cadre: "Seuil ancienneté cadre",
-        seuil_coeff: "Seuil coefficient",
-        coeff_1: "Coefficient 1",
-        coeff_2: "Coefficient 2"
-    },
-    bonus_age: {
-        anciennete_min: "Ancienneté min bonus",
-        bonus_50_55: "Bonus 50-55",
-        bonus_55_60: "Bonus 55-60",
-        plancher_50_55: "Plancher 50-55 (mois)",
-        plancher_55_60: "Plancher 55-60 (mois)"
-    },
-    plafonds: {
-        max_mois: "Plafond (mois)"
-    },
-    minoration: {
-        active: "Activer minoration",
-        age_61: "Décote 61 ans",
-        age_62: "Décote 62 ans",
-        age_63: "Décote 63 ans",
-        age_64: "Décote 64 ans"
-    },
-    supra: {
-        coef_max: "Coefficient max",
-        coef_annee: "Coefficient annuel"
-    },
-    preavis: {
-        cadre: "Préavis cadre (mois)",
-        non_cadre: "Préavis non cadre (mois)"
-    },
-    divers: {
-        plafond_secu: "Plafond sécurité sociale",
-        multiple_pass: "Multiple PASS"
-    }
+// 🔑 CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "XXX",
+  authDomain: "XXX",
+  projectId: "XXX"
 };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 let params = {};
 
 async function load() {
-    const res = await fetch(API_URL);
-    params = await res.json();
-
+    const snap = await getDoc(doc(db, "rcc", "params"));
+    params = snap.data();
     renderForm();
 }
 
@@ -152,11 +97,7 @@ function renderForm() {
         const card = document.createElement("div");
         card.className = "card";
 
-        const title = document.createElement("h3");
-        title.className = "section-title";
-        title.innerText = section.toUpperCase();
-
-        card.appendChild(title);
+        card.innerHTML += `<h3>${section}</h3>`;
 
         const grid = document.createElement("div");
         grid.className = "grid";
@@ -167,27 +108,16 @@ function renderForm() {
 
             const wrapper = document.createElement("div");
 
-            const label = document.createElement("label");
-            label.innerText = labels[section]?.[key] || key;
-
-            let input;
-
-            if (typeof value === "boolean") {
-                input = document.createElement("input");
-                input.type = "checkbox";
-                input.checked = value;
-            } else {
-                input = document.createElement("input");
-                input.type = "number";
-                input.step = "any";
-                input.value = value;
-            }
-
-            input.dataset.section = section;
-            input.dataset.key = key;
-
-            wrapper.appendChild(label);
-            wrapper.appendChild(input);
+            wrapper.innerHTML = `
+                <label>${key}</label>
+                <input 
+                    data-section="${section}" 
+                    data-key="${key}" 
+                    value="${value}" 
+                    type="${typeof value === 'boolean' ? 'checkbox' : 'number'}"
+                    ${typeof value === 'boolean' && value ? 'checked' : ''}
+                >
+            `;
 
             grid.appendChild(wrapper);
         }
@@ -216,14 +146,12 @@ async function save() {
         }
     });
 
-    await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated)
-    });
+    await setDoc(doc(db, "rcc", "params"), updated);
 
-    alert("Paramètres enregistrés avec succès");
+    alert("Paramètres sauvegardés !");
 }
+
+window.save = save;
 
 load();
 
