@@ -34,11 +34,10 @@ td {
 }
 
 td.label {
-    width:50%;
     color:#555;
 }
 
-td.input input {
+td.input input, td.input select {
     width:100%;
     padding:6px;
     background:#e8f2ff;
@@ -63,18 +62,16 @@ td.value {
 <body>
 
 <div class="container">
-
 <div class="card">
 
 <h2>Simulation RCC</h2>
 
 <table>
 
-<!-- INPUTS (BLEUS) -->
 <tr>
 <td class="label">Date de référence</td>
 <td class="input"><input type="date" id="date_ref"></td>
-<td class="value"></td>
+<td></td>
 </tr>
 
 <tr>
@@ -117,95 +114,52 @@ td.value {
 <td></td>
 </tr>
 
-<!-- CALCULS -->
+<tr><td colspan="3"><strong>Résultats</strong></td></tr>
 
-<tr><td colspan="3"><strong>Calculs</strong></td></tr>
-
+<tr><td class="label">Age</td><td></td><td id="age" class="value"></td></tr>
+<tr><td class="label">Ancienneté</td><td></td><td id="anciennete" class="value"></td></tr>
+<tr><td class="label">Salaire mensuel</td><td></td><td id="salaireM" class="value"></td></tr>
+<tr><td class="label">Indemnité CFC</td><td></td><td id="ill" class="value"></td></tr>
+<tr><td class="label">Indemnité Mobilité</td><td></td><td id="mobilite" class="value"></td></tr>
+<tr><td class="label">Bonus âge</td><td></td><td id="bonus" class="value"></td></tr>
+<tr><td class="label">Après plafond</td><td></td><td id="plafond" class="value"></td></tr>
+<tr><td class="label">Minoration</td><td></td><td id="minoration" class="value"></td></tr>
+<tr><td class="label">Résultat Mobilité</td><td></td><td id="resMob" class="value"></td></tr>
+<tr><td class="label">Indemnité retenue</td><td></td><td id="retenue" class="value"></td></tr>
+<tr><td class="label">Supra-légale</td><td></td><td id="supra" class="value"></td></tr>
 <tr>
-<td class="label">Age</td>
+<td class="label total">TOTAL</td>
 <td></td>
-<td class="value" id="age"></td>
-</tr>
-
-<tr>
-<td class="label">Ancienneté</td>
-<td></td>
-<td class="value" id="anciennete"></td>
-</tr>
-
-<tr>
-<td class="label">Salaire mensuel</td>
-<td></td>
-<td class="value" id="salaireM"></td>
-</tr>
-
-<tr>
-<td class="label">Indemnité CFC (ILL)</td>
-<td></td>
-<td class="value" id="ill"></td>
-</tr>
-
-<tr>
-<td class="label">Indemnité Mobilité brute</td>
-<td></td>
-<td class="value" id="mobilite"></td>
-</tr>
-
-<tr>
-<td class="label">Bonus âge</td>
-<td></td>
-<td class="value" id="bonus"></td>
-</tr>
-
-<tr>
-<td class="label">Après plafond</td>
-<td></td>
-<td class="value" id="plafond"></td>
-</tr>
-
-<tr>
-<td class="label">Minoration senior</td>
-<td></td>
-<td class="value" id="minoration"></td>
-</tr>
-
-<tr>
-<td class="label">Résultat Mobilité</td>
-<td></td>
-<td class="value" id="resMob"></td>
-</tr>
-
-<tr>
-<td class="label">Indemnité retenue</td>
-<td></td>
-<td class="value" id="retenue"></td>
-</tr>
-
-<tr>
-<td class="label">Supra-légale</td>
-<td></td>
-<td class="value" id="supra"></td>
-</tr>
-
-<tr>
-<td class="label total">TOTAL RCC</td>
-<td></td>
-<td class="value total" id="total"></td>
+<td id="total" class="value total"></td>
 </tr>
 
 </table>
 
 </div>
-
 </div>
 
-<script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCOXHEDdPKlGOV9_XaQlBp3RbEk0Lodi_8",
+  authDomain: "simu-rcc.firebaseapp.com",
+  projectId: "simu-rcc",
+  storageBucket: "simu-rcc.firebasestorage.app",
+  messagingSenderId: "35682807027",
+  appId: "1:35682807027:web:3bed8a15cf650acfc95b86"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 let params = {};
 
 async function loadParams() {
-    const res = await fetch("http://localhost:3000/params");
-    params = await res.json();
+    const snap = await getDoc(doc(db, "rcc", "params"));
+    params = snap.data();
 }
 
 function yearsBetween(d1, d2) {
@@ -231,13 +185,11 @@ async function simulate() {
 
     const salaireM = salaire / 12;
 
-    // ILL
     const ill = salaireM * (
         params.ill.taux_0_10 * Math.min(anciennete, 10) +
         params.ill.taux_10_plus * Math.max(anciennete - 10, 0)
     );
 
-    // Mobilité
     let coef;
     if (anciennete < params.mobilite.seuil_cadre) {
         coef = params.ill.taux_0_10 * anciennete;
@@ -248,6 +200,7 @@ async function simulate() {
     }
 
     let mobilite = salaireM * coef;
+
     let bonus = mobilite;
 
     if (age >= 50 && age < 55) {
@@ -266,7 +219,6 @@ async function simulate() {
 
     let plafond = Math.min(bonus, params.plafonds.max_mois * salaireM);
 
-    // Minoration
     let reduction = 0;
     if (age >= 61) reduction = params.minoration.age_61;
     if (age >= 62) reduction = params.minoration.age_62;
@@ -275,19 +227,15 @@ async function simulate() {
 
     let resMob = plafond * (1 - reduction);
 
-    // Choix final
     let retenue = Math.max(ill, resMob);
 
-    // Supra
     let supra = salaireM * Math.min(params.supra.coef_annee * anciennete, params.supra.coef_max);
 
     let total = retenue + supra;
 
-    // UI
     document.getElementById("age").innerText = age.toFixed(1);
     document.getElementById("anciennete").innerText = anciennete.toFixed(1);
     document.getElementById("salaireM").innerText = salaireM.toFixed(2);
-
     document.getElementById("ill").innerText = ill.toFixed(2);
     document.getElementById("mobilite").innerText = mobilite.toFixed(2);
     document.getElementById("bonus").innerText = bonus.toFixed(2);
@@ -299,7 +247,6 @@ async function simulate() {
     document.getElementById("total").innerText = total.toFixed(2) + " €";
 }
 
-// live
 document.querySelectorAll("input, select").forEach(el => {
     el.addEventListener("input", simulate);
 });
