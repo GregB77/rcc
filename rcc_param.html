@@ -1,83 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Paramètres RCC</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RCC - Paramètres</title>
+  <link rel="stylesheet" href="rcc_param.css" />
 </head>
 <body>
-
-<div class="container">
-
-    <div class="nav">
-        <a href="rcc_param.html">Paramètres</a>
-        <a href="sim_rcc.html">Simulation</a>
+  <header class="topbar">
+    <h1>RCC – Paramètres (E2:G36)</h1>
+    <div class="actions">
+      <button id="btnReset" type="button">Réinitialiser</button>
+      <button id="btnSave" type="button" class="primary">Enregistrer</button>
+      <a class="primary" href="sim_rcc.html">Ouvrir le simulateur</a>
     </div>
+  </header>
 
-    <h1>Paramètres RCC</h1>
+  <main class="container">
+    <p class="hint">Cette page correspond à la zone <strong>E2:G36</strong> de la feuille <strong>"RCC avec Préavis"</strong>. Toutes les valeurs sont modifiables et sont sauvegardées en local (LocalStorage).</p>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Paramètre</th>
-                <th>Valeur</th>
-            </tr>
-        </thead>
-        <tbody id="paramTable"></tbody>
-    </table>
+    <section id="paramContainer"></section>
 
-    <button onclick="saveAll()">Enregistrer</button>
+    <details class="debug">
+      <summary>Données (diagnostic)</summary>
+      <pre id="debug"></pre>
+    </details>
+  </main>
 
-</div>
-
-<script src="rcc.js"></script>
-
-<script>
-const params = loadParams();
-
-const labels = {
-    illAncienneteMini: 'ILL - Ancienneté minimale (mois)',
-    illTaux010: 'ILL - Taux 0-10 ans',
-    illTaux10Plus: 'ILL - Taux >10 ans',
-    ilcAncienneteMini: 'ILC - Ancienneté mini',
-    ilcMaj50_55: 'ILC - Majoration 50-55',
-    ilcMaj55_60: 'ILC - Majoration 55-60',
-    ilcPlafond: 'ILC - Plafond',
-    passAnnuel: 'PASS annuel',
-    mobiliteSupraCoef: 'Mobilité - Coef supra',
-    mobilitePlafondMois: 'Mobilité - Plafond mois',
-    mobilitePlafondEuro: 'Mobilité - Plafond €',
-    cfcPlafondMois: 'CFC - Plafond mois',
-    cfcPlafondEuro: 'CFC - Plafond €',
-    cfcDureeMax: 'CFC - Durée max',
-    cfcTaux: 'CFC - Taux rémunération'
-};
-
-const tbody = document.getElementById('paramTable');
-
-Object.keys(labels).forEach(key => {
-    const tr = document.createElement('tr');
-
-    tr.innerHTML = `
-        <td>${labels[key]}</td>
-        <td>
-            <input type="number" step="0.01" id="${key}" value="${params[key]}">
-        </td>
-    `;
-
-    tbody.appendChild(tr);
-});
-
-function saveAll() {
-    Object.keys(labels).forEach(key => {
-        params[key] = Number(document.getElementById(key).value);
-    });
-
-    saveParams(params);
-
-    alert('Paramètres enregistrés');
-}
-</script>
-
+  <script src="rcc_param.js"></script>
 </body>
 </html>
