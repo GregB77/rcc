@@ -2,60 +2,245 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Simulation RCC</title>
+<title>Simulateur RCC</title>
+
 <style>
-body { font-family: Arial; padding:20px; }
-.result { margin:10px 0; }
+body {
+    font-family: "Segoe UI", Arial;
+    background:#f5f7fa;
+    padding:20px;
+}
+
+.container {
+    max-width:1000px;
+    margin:auto;
+}
+
+.card {
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom:20px;
+}
+
+h2 {
+    margin-top:0;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:15px;
+}
+
+label {
+    font-size:13px;
+    color:#555;
+}
+
+input, select {
+    width:100%;
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    background:#e8f2ff; /* champs bleus */
+}
+
+.result-line {
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    border-bottom:1px solid #eee;
+}
+
+.result-line strong {
+    color:#0a58ca;
+}
+
+.total {
+    font-size:20px;
+    font-weight:bold;
+    color:#0a58ca;
+    text-align:right;
+    margin-top:10px;
+}
+
+.topbar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+button {
+    padding:8px 12px;
+    border:none;
+    border-radius:6px;
+    background:#0a58ca;
+    color:white;
+    cursor:pointer;
+}
 </style>
+
 </head>
 
 <body>
 
-<h2>Résultats RCC</h2>
+<div class="container">
+
+<div class="topbar">
+    <h2>Simulateur RCC</h2>
+    <a href="rcc_param.html"><button>⚙️ Paramètres</button></a>
+</div>
+
+<!-- 🟦 SAISIE -->
+<div class="card">
+<h3>Données salarié</h3>
+
+<div class="grid">
+
+<div>
+<label>Date de référence</label>
+<input type="date" id="date_ref">
+</div>
+
+<div>
+<label>Date de naissance</label>
+<input type="date" id="naissance">
+</div>
+
+<div>
+<label>Date d'entrée</label>
+<input type="date" id="entree">
+</div>
+
+<div>
+<label>Salaire annuel (€)</label>
+<input type="number" id="salaire">
+</div>
+
+<div>
+<label>Statut</label>
+<select id="statut">
+<option>Cadre</option>
+<option>Non cadre</option>
+</select>
+</div>
+
+<div>
+<label>Dispositif</label>
+<select id="dispositif">
+<option>CFC</option>
+<option>Mobilité</option>
+</select>
+</div>
+
+</div>
+</div>
+
+<!-- 🧮 RESULTATS -->
+<div class="card">
+<h3>Résultats</h3>
 
 <div id="results"></div>
 
+<div class="total" id="total"></div>
+
+</div>
+
+</div>
+
 <script>
 
-function yearsBetween(d1, d2) {
-    return (new Date(d2) - new Date(d1)) / (365.25 * 24 * 3600 * 1000);
+let params = {};
+
+async function loadParams() {
+    const res = await fetch("http://localhost:3000/params");
+    params = await res.json();
 }
 
-function simulate() {
+function yearsBetween(d1, d2) {
+    return (new Date(d1) - new Date(d2)) / (365.25 * 24 * 3600 * 1000);
+}
 
-    const data = JSON.parse(localStorage.getItem("rcc_data"));
+async function simulate() {
 
-    const age = yearsBetween(data.naissance, data.date_ref);
-    const anciennete = yearsBetween(data.entree, data.date_ref);
+    if (!params.ill) await loadParams();
 
-    const salaire_mensuel = data.salaire_annuel / 12;
+    const salaire = parseFloat(document.getElementById("salaire").value || 0);
+    if (!salaire) return;
 
-    // === LOGIQUE RCC SIMPLIFIÉE (à ajuster selon ton Excel) ===
+    const age = yearsBetween(
+        document.getElementById("date_ref").value,
+        document.getElementById("naissance").value
+    );
 
-    let indemnite = 0;
+    const anciennete = yearsBetween(
+        document.getElementById("date_ref").value,
+        document.getElementById("entree").value
+    );
 
-    if (anciennete * 12 >= data.ill_min) {
+    const salaireM = salaire / 12;
 
-        if (anciennete <= 10) {
-            indemnite = anciennete * data.taux1 * salaire_mensuel;
-        } else {
-            indemnite =
-                (10 * data.taux1 + (anciennete - 10) * data.taux2)
-                * salaire_mensuel;
-        }
+    // === ILL ===
+    const ill = salaireM * (
+        params.ill.taux_0_10 * Math.min(anciennete, 10) +
+        params.ill.taux_10_plus * Math.max(anciennete - 10, 0)
+    );
+
+    // === MOBILITE ===
+    let mobiliteCoef;
+
+    if (anciennete < params.mobilite.seuil_cadre) {
+        mobiliteCoef = params.ill.taux_0_10 * anciennete;
+    } else {
+        mobiliteCoef =
+            params.mobilite.coeff_1 * params.mobilite.seuil_coeff +
+            params.mobilite.coeff_2 * Math.max(anciennete - params.mobilite.seuil_coeff, 0);
     }
 
-    const resultHTML = `
-        <div class="result">Age : ${age.toFixed(1)} ans</div>
-        <div class="result">Ancienneté : ${anciennete.toFixed(1)} ans</div>
-        <div class="result">Salaire mensuel : ${salaire_mensuel.toFixed(2)} €</div>
-        <div class="result"><strong>Indemnité RCC : ${indemnite.toFixed(2)} €</strong></div>
+    let mobilite = salaireM * mobiliteCoef;
+
+    // === BONUS AGE ===
+    if (age >= 50 && age < 55) {
+        mobilite = Math.max(
+            mobilite * (1 + params.bonus_age.bonus_50_55),
+            params.bonus_age.plancher_50_55 * salaireM
+        );
+    }
+
+    if (age >= 55 && age < 60) {
+        mobilite = Math.max(
+            mobilite * (1 + params.bonus_age.bonus_55_60),
+            params.bonus_age.plancher_55_60 * salaireM
+        );
+    }
+
+    // === PLAFOND ===
+    mobilite = Math.min(mobilite, params.plafonds.max_mois * salaireM);
+
+    // === FINAL ===
+    const final = Math.max(ill, mobilite);
+
+    // === UI ===
+    document.getElementById("results").innerHTML = `
+        <div class="result-line"><span>Age</span><span>${age.toFixed(1)} ans</span></div>
+        <div class="result-line"><span>Ancienneté</span><span>${anciennete.toFixed(1)} ans</span></div>
+        <div class="result-line"><span>Salaire mensuel</span><span>${salaireM.toFixed(2)} €</span></div>
+
+        <div class="result-line"><span>Indemnité CFC</span><span>${ill.toFixed(2)} €</span></div>
+        <div class="result-line"><span>Indemnité Mobilité</span><span>${mobilite.toFixed(2)} €</span></div>
     `;
 
-    document.getElementById("results").innerHTML = resultHTML;
+    document.getElementById("total").innerText =
+        "Total RCC : " + final.toFixed(2) + " €";
 }
 
-simulate();
+// recalcul live
+document.querySelectorAll("input, select").forEach(el => {
+    el.addEventListener("input", simulate);
+});
 
 </script>
 
