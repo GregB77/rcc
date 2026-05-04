@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur RCC – Indemnités</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ⚠️ Remplacer par votre config Firebase
+  const firebaseConfig = {
+    apiKey: "VOTRE_API_KEY",
+    authDomain: "VOTRE_PROJECT.firebaseapp.com",
+    databaseURL: "https://VOTRE_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "VOTRE_PROJECT",
+    storageBucket: "VOTRE_PROJECT.appspot.com",
+    messagingSenderId: "VOTRE_SENDER_ID",
+    appId: "VOTRE_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Valeurs par défaut (fallback si Firebase indisponible)
+  const DEFAULT_PARAMS = {
+    E3: 8, E4: 0.25, E5: 1/3, E6: 5,
+    E7: 0.2, E8: 0.3, E9: 3, E10: 6,
+    E11: 18, E12: 8, E13: 7, E14: 1/5,
+    E15: 3/5, E16: "Oui", E17: 0.05,
+    E18: 0.10, E19: 0.20, E20: 0.40,
+    E21: 48060, E22: 0.8, E23: 999,
+    E24: 18, E25: 100000, E26: 12,
+    E27: 15, E28: 0.75, E29: 0.80,
+    E30: 999, E31: 999, E32: 36,
+    E33: 0.7, E34: 9.99
+  };
+
+  window._params = { ...DEFAULT_PARAMS };
+  window._paramsLoaded = false;
+
+  const paramsRef = ref(db, 'params');
+  onValue(paramsRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      window._params = { ...DEFAULT_PARAMS, ...data };
+    }
+    window._paramsLoaded = true;
+    if (typeof window._onParamsReady === 'function') window._onParamsReady();
+  }, (error) => {
+    console.warn("Firebase indisponible, utilisation des valeurs par défaut.", error);
+    window._paramsLoaded = true;
+    if (typeof window._onParamsReady === 'function') window._onParamsReady();
+  });
+</script>
+
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --surface: #fffcf7;
+    --border: #d9cfc0;
+    --text: #1a1612;
+    --muted: #7a7163;
+    --accent: #b5490a;
+    --accent2: #1d5c3a;
+    --blue: #2a4f7c;
+    --input-bg: #eaf1fb;
+    --input-border: #a0b8d8;
+    --result-bg: #f0f7f3;
+    --result-border: #7db89a;
+    --shadow: 0 2px 16px rgba(26,22,18,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--text);
+    color: #f5f0e8;
+    padding: 32px 40px;
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .page-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.1;
+    flex: 1;
+    min-width: 240px;
+  }
+
+  .page-header h1 em {
+    font-style: italic;
+    color: #d4a96a;
+  }
+
+  .header-meta {
+    font-size: 0.78rem;
+    color: #a09688;
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .header-meta a {
+    color: #d4a96a;
+    text-decoration: none;
+  }
+
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .notice {
+    background: #fff8ee;
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .section-title {
+    background: var(--text);
+    color: #f5f0e8;
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    transition: background 0.15s;
+  }
+
+  .field-row:last-child { border-bottom: none; }
+  .field-row:hover { background: #faf7f2; }
+
+  .field-label {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .field-label small {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .field-input {
+    width: 100%;
+  }
+
+  input[type="date"], input[type="number"], select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--input-border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--blue);
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input[type="date"]:focus, input[type="number"]:focus, select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(42,79,124,0.12);
+  }
+
+  input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
+
+  /* Results section */
+  .results-section {
+    background: var(--surface);
+    border: 1.5px solid var(--result-border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .results-section .section-title {
+    background: var(--accent2);
+  }
+
+  .result-row {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #daeee5;
+    gap: 16px;
+  }
+
+  .result-row:last-child { border-bottom: none; }
+
+  .result-row.highlight {
+    background: #e8f4ee;
+  }
+
+  .result-row.highlight .result-value {
+    font-size: 1.15rem;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .result-label {
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .result-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--blue);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-value.warn { color: var(--accent); }
+
+  /* Computed fields (shown as read-only) */
+  .computed-row {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    background: #f9f6f0;
+  }
+  .computed-row:last-child { border-bottom: none; }
+  .computed-value {
+    font-size: 0.88rem;
+    color: var(--muted);
+    text-align: right;
+    font-style: italic;
+  }
+
+  /* Cotisations */
+  .cotis-section .section-title {
+    background: #3a3330;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .badge-ok { background: #d4eedf; color: #1d5c3a; }
+  .badge-warn { background: #fde8d8; color: #b5490a; }
+
+  @media (max-width: 600px) {
+    .page-header { padding: 24px 20px; }
+    .main { padding: 24px 16px 60px; }
+    .field-row, .result-row, .computed-row {
+      grid-template-columns: 1fr;
+    }
+    .field-input, .result-value { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Simulateur <em>RCC</em><br>Rupture Conventionnelle Collective</h1>
+  <div class="header-meta">
+    Métallurgie · Convention Collective<br>
+    <a href="params.html">⚙ Paramètres →</a>
+  </div>
+</header>
+
+<main class="main">
+  <div class="notice">
+    📌 <strong>Données personnelles :</strong> Les informations saisies restent dans votre navigateur et ne sont pas transmises. Elles sont effacées à la fermeture de l'onglet. Les paramètres de calcul sont définis par l'administrateur.
+  </div>
+
+  <!-- Section Données d'entrée -->
+  <div class="section">
+    <div class="section-title">Vos données</div>
+
+    <div class="field-row">
+      <div class="field-label">
+        Statut métallurgie
+        <small>Cadre ou Non-cadre</small>
+      </div>
+      <div class="field-input">
+        <select id="B4" onchange="calculate()">
+          <option value="" disabled selected>-- Choisir --</option>
+          <option value="Cadre">Cadre</option>
+          <option value="Non-cadre">Non-cadre</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">
+        Dispositif
+        <small>Mobilité ou CFC</small>
+      </div>
+      <div class="field-input">
+        <select id="B5" onchange="calculate()">
+          <option value="" disabled selected>-- Choisir --</option>
+          <option value="Mobilité">Mobilité</option>
+          <option value="CFC">CFC</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">
+        Date de naissance
+      </div>
+      <div class="field-input">
+        <input type="date" id="B6" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">
+        Date d'entrée dans l'entreprise
+      </div>
+      <div class="field-input">
+        <input type="date" id="B8" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">
+        Salaire annuel brut de référence
+        <small>En euros (€)</small>
+      </div>
+      <div class="field-input">
+        <input type="number" id="B10" min="0" step="100" placeholder="ex : 42 000" oninput="calculate()">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-label">
+        Forcer ILL ?
+        <small>Indemnité Légale de Licenciement</small>
+      </div>
+      <div class="field-input">
+        <select id="B12" onchange="calculate()">
+          <option value="" disabled selected>-- Choisir --</option>
+          <option value="Oui (défaut)">Oui (défaut)</option>
+          <option value="Non">Non</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Champs calculés (info) -->
+  <div class="section">
+    <div class="section-title">Informations calculées</div>
+    <div class="computed-row">
+      <div class="field-label">Date de référence (notification / rupture)</div>
+      <div class="computed-value" id="disp_B3">—</div>
+    </div>
+    <div class="computed-row">
+      <div class="field-label">Âge (années)</div>
+      <div class="computed-value" id="disp_age">—</div>
+    </div>
+    <div class="computed-row">
+      <div class="field-label">Ancienneté (années)</div>
+      <div class="computed-value" id="disp_anciennete">—</div>
+    </div>
+    <div class="computed-row">
+      <div class="field-label">Salaire mensuel brut de référence</div>
+      <div class="computed-value" id="disp_salaire_mensuel">—</div>
+    </div>
+  </div>
+
+  <!-- Résultats principaux -->
+  <div class="results-section">
+    <div class="section-title">Résultats de la simulation</div>
+
+    <div class="result-row highlight">
+      <div class="result-label"><strong>Total indemnité RCC avec plafond</strong></div>
+      <div class="result-value" id="res_B18">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Indemnité retenue (avant supra)</div>
+      <div class="result-value" id="res_B15">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Supra-légale (Mobilité uniquement)</div>
+      <div class="result-value" id="res_B16">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Total indemnité RCC avant plafond</div>
+      <div class="result-value" id="res_B17">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Plafond atteint ?</div>
+      <div class="result-value" id="res_B19">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Nombre de mois équivalent (indemnité / salaire mensuel)</div>
+      <div class="result-value" id="res_B20">—</div>
+    </div>
+  </div>
+
+  <!-- Rémunération pendant le dispositif -->
+  <div class="results-section">
+    <div class="section-title">Rémunération pendant le dispositif</div>
+
+    <div class="result-row">
+      <div class="result-label">Taux de rémunération</div>
+      <div class="result-value" id="res_B21">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Rémunération mensuelle brute</div>
+      <div class="result-value" id="res_B22">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Durée maximale du dispositif (mois)</div>
+      <div class="result-value" id="res_B24">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Date de sortie du dispositif</div>
+      <div class="result-value" id="res_B25">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Rémunération totale</div>
+      <div class="result-value" id="res_B26">—</div>
+    </div>
+
+    <div class="result-row highlight">
+      <div class="result-label"><strong>Rémunération totale y compris indemnité</strong></div>
+      <div class="result-value" id="res_B27">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Rémunération moyenne mensuelle sur la durée</div>
+      <div class="result-value" id="res_B28">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Écart vs salaire mensuel de référence</div>
+      <div class="result-value" id="res_B29">—</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Nb mois équivalents vs salaire mensuel de référence</div>
+      <div class="result-value" id="res_B30">—</div>
+    </div>
+  </div>
+
+  <!-- Cotisations -->
+  <div class="section cotis-section">
+    <div class="section-title">Cotisations (estimations)</div>
+    <div class="result-row">
+      <div class="result-label">Part soumise aux cotisations URSSAF</div>
+      <div class="result-value" id="res_B33">—</div>
+    </div>
+    <div class="result-row">
+      <div class="result-label">Part soumise CSG/CRDS</div>
+      <div class="result-value" id="res_B34">—</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+function fmt(n, decimals = 2) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  }).format(n) + ' €';
+}
+
+function fmtN(n, decimals = 2) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  }).format(n);
+}
+
+function fmtPct(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return (n * 100).toFixed(1) + ' %';
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return d.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function yearFrac(date1, date2) {
+  // Approximate YEARFRAC basis=1 (Actual/Actual)
+  const ms = Math.abs(date1 - date2);
+  const days = ms / (1000 * 60 * 60 * 24);
+  // Use average year length
+  const avgYear = 365.25;
+  return days / avgYear;
+}
+
+function addMonths(date, months) {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + Math.round(months));
+  return d;
+}
+
+function setEl(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = val;
+}
+
+// ─── Today as reference date ──────────────────────────────────────────────
+function getRefDate() {
+  return new Date(); // B3 = aujourd'hui
+}
+
+// ─── Main calculation ─────────────────────────────────────────────────────
+function calculate() {
+  const P = window._params || {};
+
+  // Inputs
+  const statut = document.getElementById('B4').value;
+  const dispositif = document.getElementById('B5').value;
+  const dobStr = document.getElementById('B6').value;
+  const entryStr = document.getElementById('B8').value;
+  const salAnnuel = parseFloat(document.getElementById('B10').value);
+  const forcerILL = document.getElementById('B12').value;
+
+  const refDate = getRefDate();
+  setEl('disp_B3', fmtDate(refDate));
+
+  if (!dobStr || !entryStr || isNaN(salAnnuel) || !statut || !dispositif || !forcerILL) {
+    clearResults();
+    return;
+  }
+
+  const dob = new Date(dobStr);
+  const entry = new Date(entryStr);
+
+  // B7: âge
+  const age = yearFrac(dob, refDate);
+  // B9: ancienneté
+  const anciennete = yearFrac(entry, refDate);
+  // B11: salaire mensuel
+  const salMensuel = salAnnuel / 12;
+
+  setEl('disp_age', fmtN(age, 2) + ' ans');
+  setEl('disp_anciennete', fmtN(anciennete, 2) + ' ans');
+  setEl('disp_salaire_mensuel', fmt(salMensuel));
+
+  // ── B15: Indemnité retenue (LET formula) ──────────────────────────────
+  const E3 = P.E3 ?? 8;   // ancienneté mini mois
+  const E4 = P.E4 ?? 0.25;
+  const E5 = P.E5 ?? (1/3);
+  const E6 = P.E6 ?? 5;
+  const E7 = P.E7 ?? 0.2;
+  const E8 = P.E8 ?? 0.3;
+  const E9 = P.E9 ?? 3;
+  const E10 = P.E10 ?? 6;
+  const E11 = P.E11 ?? 18;
+  const E12 = P.E12 ?? 8;
+  const E13 = P.E13 ?? 7;
+  const E14 = P.E14 ?? (1/5);
+  const E15 = P.E15 ?? (3/5);
+  const E16 = P.E16 ?? "Oui";
+  const E17 = P.E17 ?? 0.05;
+  const E18 = P.E18 ?? 0.10;
+  const E19 = P.E19 ?? 0.20;
+  const E20 = P.E20 ?? 0.40;
+  const E21 = P.E21 ?? 48060;
+  const E22 = P.E22 ?? 0.8;
+  const E23 = P.E23 ?? 999;
+  const E24 = P.E24 ?? 18;
+  const E25 = P.E25 ?? 100000;
+  const E26 = P.E26 ?? 12;
+  const E27 = P.E27 ?? 15;
+  const E28 = P.E28 ?? 0.75;
+  const E29 = P.E29 ?? 0.80;
+  const E30 = P.E30 ?? 999;
+  const E31 = P.E31 ?? 999;
+  const E32 = P.E32 ?? 36;
+  const E33 = P.E33 ?? 0.7;
+  const E34 = P.E34 ?? 9.99;
+
+  // CFC base indemnité
+  const ancienneteCFC = salMensuel * (E4 * Math.min(anciennete, 10) + E5 * Math.max(anciennete - 10, 0));
+  const indemniteCFC = anciennete < (E3 / 12) ? 0 : ancienneteCFC;
+
+  // Mobilité
+  const coefMobilite = anciennete < E12
+    ? E4 * anciennete
+    : E14 * E13 + E15 * Math.max(anciennete - E13, 0);
+  const indemniteMobilite = salMensuel * coefMobilite;
+
+  // BonusAge (cadres)
+  let bonusAge = indemniteMobilite;
+  if (statut === 'Cadre' && age >= 50 && age < 55 && anciennete >= E6) {
+    bonusAge = Math.max(indemniteMobilite * (1 + E7), E9 * salMensuel);
+  } else if (statut === 'Cadre' && age >= 55 && age < 60 && anciennete >= E6) {
+    bonusAge = Math.max(indemniteMobilite * (1 + E8), E10 * salMensuel);
+  }
+
+  const plafondMobilite_B15 = Math.min(bonusAge, E11 * salMensuel);
+
+  // Réduction senior
+  let reductionSenior = 0;
+  const ageFloor = Math.floor(age);
+  if (ageFloor === 61) reductionSenior = E17;
+  else if (ageFloor === 62) reductionSenior = E18;
+  else if (ageFloor === 63) reductionSenior = E19;
+  else if (age >= 64) reductionSenior = E20;
+
+  let resultatMobilite = plafondMobilite_B15;
+  if (statut === 'Cadre' && E16 === "Oui" && age >= 61) {
+    resultatMobilite = Math.max(plafondMobilite_B15 * (1 - reductionSenior), indemniteCFC);
+  }
+
+  let B15;
+  if (forcerILL === 'Oui (défaut)') {
+    B15 = indemniteCFC;
+  } else if (dispositif === 'CFC') {
+    B15 = indemniteCFC;
+  } else {
+    B15 = resultatMobilite;
+  }
+
+  // B16: Supra-légale
+  const B16 = dispositif === 'CFC' ? 0 : salMensuel * Math.min(E23 === 999 ? Infinity : E23, E22 * anciennete);
+  const B16safe = isFinite(B16) ? B16 : salMensuel * E22 * anciennete;
+
+  // B17: Total avant plafond
+  const B17 = B15 + B16safe;
+
+  // B18: Total avec plafond (LET formula)
+  const plafondCFC_val = Math.min(
+    E30 === 999 ? B17 : E30 * salMensuel,
+    E31 === 999 ? B17 : E31
+  );
+  const plafondMobilite_B18 = Math.min(E24 * salMensuel, E25);
+
+  let B18;
+  if (dispositif === 'CFC') {
+    B18 = Math.max(indemniteCFC, Math.min(B17, plafondCFC_val));
+  } else {
+    B18 = Math.max(B15, Math.min(B17, plafondMobilite_B18));
+  }
+
+  // B19
+  const B19 = B18 <= B17 ? 'Oui' : 'Non';
+
+  // B20
+  const B20 = B18 / salMensuel;
+
+  // B21: Taux rémunération
+  const B21 = dispositif === 'CFC' ? E33 : (age < 50 ? E28 : E29);
+
+  // B22
+  const B22 = salMensuel * B21;
+
+  // B23: Durée préavis
+  let B23 = 0;
+  if (E34 !== 999) {
+    B23 = Math.round(salMensuel * E34 / B22 * 10) / 10; // approximation
+  }
+
+  // B24: Durée max dispositif
+  let B24;
+  if (dispositif === 'CFC') {
+    B24 = E32;
+  } else {
+    B24 = age < 50 ? E26 : E27;
+  }
+
+  // B25: Date sortie
+  const B25 = addMonths(refDate, B24);
+
+  // B26: Rémunération totale (approximation - B23 impacts si préavis)
+  const B26 = B22 * B24; // simplification sans préavis
+
+  // B27
+  const B27 = B26 + B18;
+
+  // B28
+  const B28 = B27 / B24;
+
+  // B29
+  const B29 = B28 - salMensuel;
+
+  // B30
+  const B30 = B27 / salMensuel;
+
+  // B33: Part soumise URSSAF
+  const B33 = B18 - (B18 >= 10 * E21 ? 0 : Math.min(B18, 2 * E21));
+
+  // B34: Part soumise CSG/CRDS
+  const B34 = B18 >= 10 * E21 ? B18 : B18 - Math.min(B18, Math.min(B15, B18 - B33));
+
+  // ── Display ──────────────────────────────────────────────────────────────
+  setEl('res_B15', fmt(B15));
+  setEl('res_B16', fmt(B16safe));
+  setEl('res_B17', fmt(B17));
+  setEl('res_B18', fmt(B18));
+  setEl('res_B19', `<span class="status-badge ${B19==='Oui'?'badge-warn':'badge-ok'}">${B19}</span>`);
+  setEl('res_B20', fmtN(B20, 2) + ' mois');
+  setEl('res_B21', fmtPct(B21));
+  setEl('res_B22', fmt(B22));
+  setEl('res_B24', fmtN(B24, 0) + ' mois');
+  setEl('res_B25', fmtDate(B25));
+  setEl('res_B26', fmt(B26));
+  setEl('res_B27', fmt(B27));
+  setEl('res_B28', fmt(B28));
+  const sign = B29 >= 0 ? '+' : '';
+  setEl('res_B29', `<span class="${B29 < 0 ? 'warn' : ''}">${sign}${fmt(B29)}</span>`);
+  setEl('res_B30', fmtN(B30, 2) + ' mois');
+  setEl('res_B33', fmt(Math.max(0, B33)));
+  setEl('res_B34', fmt(Math.max(0, B34)));
+}
+
+function clearResults() {
+  const ids = ['res_B15','res_B16','res_B17','res_B18','res_B19','res_B20',
+    'res_B21','res_B22','res_B24','res_B25','res_B26','res_B27',
+    'res_B28','res_B29','res_B30','res_B33','res_B34'];
+  ids.forEach(id => setEl(id, '—'));
+  setEl('disp_age', '—');
+  setEl('disp_anciennete', '—');
+  setEl('disp_salaire_mensuel', '—');
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────
+window._onParamsReady = () => {
+  // Restore session values
+  const fields = ['B4','B5','B6','B8','B10','B12'];
+  fields.forEach(id => {
+    const saved = sessionStorage.getItem('sim_' + id);
+    if (saved) {
+      const el = document.getElementById(id);
+      if (el) el.value = saved;
+    }
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', () => sessionStorage.setItem('sim_' + id, el.value));
+      el.addEventListener('input', () => sessionStorage.setItem('sim_' + id, el.value));
+    }
+  });
+  calculate();
+};
+
+// Si Firebase n'est pas configuré, lancer quand même
+setTimeout(() => {
+  if (!window._paramsLoaded) {
+    window._paramsLoaded = true;
+    if (typeof window._onParamsReady === 'function') window._onParamsReady();
+  }
+}, 2000);
+</script>
+</body>
+</html>

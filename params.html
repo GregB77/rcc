@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paramètres RCC – Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ⚠️ Remplacer par votre config Firebase (identique à simulation.html)
+  const firebaseConfig = {
+    apiKey: "VOTRE_API_KEY",
+    authDomain: "VOTRE_PROJECT.firebaseapp.com",
+    databaseURL: "https://VOTRE_PROJECT-default-rtdb.firebaseio.com",
+    projectId: "VOTRE_PROJECT",
+    storageBucket: "VOTRE_PROJECT.appspot.com",
+    messagingSenderId: "VOTRE_SENDER_ID",
+    appId: "VOTRE_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window._db = db;
+  window._dbRef = (path) => ref(db, path);
+  window._dbSet = set;
+  window._dbOnValue = onValue;
+
+  // Load params on startup
+  onValue(ref(db, 'params'), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      Object.entries(data).forEach(([key, val]) => {
+        const el = document.getElementById('param_' + key);
+        if (el) el.value = val;
+      });
+    }
+    setStatus('Paramètres chargés depuis Firebase.', 'ok');
+  }, (err) => {
+    setStatus('⚠️ Impossible de se connecter à Firebase. Vérifiez la configuration.', 'error');
+    console.error(err);
+  });
+</script>
+
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181c25;
+    --surface2: #1f2431;
+    --border: #2a3040;
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --accent: #f0a04b;
+    --green: #4caf87;
+    --red: #e05c5c;
+    --blue: #5b9cf6;
+    --input-bg: #141820;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+  }
+
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    color: var(--text);
+  }
+
+  .header-left h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header-left p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .status-bar {
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: all 0.3s;
+    min-width: 260px;
+    text-align: center;
+  }
+
+  .status-bar.ok { color: var(--green); border-color: var(--green); background: rgba(76,175,135,0.08); }
+  .status-bar.error { color: var(--red); border-color: var(--red); background: rgba(224,92,92,0.08); }
+  .status-bar.saving { color: var(--accent); border-color: var(--accent); background: rgba(240,160,75,0.08); }
+
+  .btn {
+    padding: 9px 22px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0f1117;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+  }
+
+  .info-box {
+    background: rgba(91,156,246,0.08);
+    border: 1px solid rgba(91,156,246,0.25);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 0.82rem;
+    color: #8ab4f8;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .params-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+  }
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 120px 1fr 160px 1fr;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    gap: 16px;
+  }
+
+  .group-header {
+    background: #1a1f2c;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .group-header::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .param-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 160px 1fr;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+    transition: background 0.1s;
+  }
+
+  .param-row:last-child { border-bottom: none; }
+  .param-row:hover { background: rgba(255,255,255,0.02); }
+
+  .param-key {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--blue);
+    font-weight: 500;
+  }
+
+  .param-label {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .param-input-wrap {
+    position: relative;
+  }
+
+  .param-input {
+    width: 100%;
+    padding: 7px 12px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .param-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(240,160,75,0.12);
+  }
+
+  select.param-input {
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8099' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+
+  .param-comment {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+    font-style: italic;
+  }
+
+  .save-confirm {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--green);
+    color: #0a1a12;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 20px rgba(76,175,135,0.4);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  .save-confirm.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  @media (max-width: 700px) {
+    .page-header { padding: 20px 16px; }
+    .main { padding: 24px 12px 60px; }
+    .table-header, .param-row {
+      grid-template-columns: 80px 1fr;
+      grid-template-rows: auto auto;
+    }
+    .param-comment, .table-header > *:nth-child(4), .table-header > *:nth-child(3) { display: none; }
+    .param-input-wrap { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-left">
+    <h1>⚙ Paramètres <em>RCC</em></h1>
+    <p>Valeurs enregistrées dans Firebase · Utilisées par tous les simulateurs</p>
+  </div>
+  <div class="header-actions">
+    <div class="status-bar" id="statusBar">Connexion à Firebase…</div>
+    <a href="simulation.html" class="btn btn-ghost">← Simulateur</a>
+    <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="info-box">
+    ⚠️ Ces paramètres sont partagés entre tous les utilisateurs du simulateur. Toute modification est immédiatement répercutée sur les calculs. Modifiez uniquement si vous êtes administrateur.
+  </div>
+
+  <div class="params-table" id="paramsTable">
+    <div class="table-header">
+      <div>Paramètre</div>
+      <div>Libellé</div>
+      <div>Valeur</div>
+      <div>Commentaire</div>
+    </div>
+
+    <!-- Groupe ILL -->
+    <div class="group-header">ILL – Indemnité Légale de Licenciement</div>
+
+    <div class="param-row">
+      <div class="param-key">E3</div>
+      <div class="param-label">Ancienneté minimale (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E3" class="param-input" value="8" step="1" min="0">
+      </div>
+      <div class="param-comment">Droit à indemnité si ancienneté ≥ 8 mois (règle légale + CCN)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E4</div>
+      <div class="param-label">Taux 0–10 ans (mois/an)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E4" class="param-input" value="0.25" step="0.01" min="0">
+      </div>
+      <div class="param-comment">¼ mois par année sur les 10 premières années</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E5</div>
+      <div class="param-label">Taux > 10 ans (mois/an)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E5" class="param-input" value="0.3333" step="0.0001" min="0">
+      </div>
+      <div class="param-comment">⅓ mois par année au-delà de 10 ans</div>
+    </div>
+
+    <!-- Groupe ILC -->
+    <div class="group-header">ILC – Indemnité de Licenciement Cadres</div>
+
+    <div class="param-row">
+      <div class="param-key">E6</div>
+      <div class="param-label">Ancienneté mini requise (ans)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E6" class="param-input" value="5" step="1" min="0">
+      </div>
+      <div class="param-comment">Condition pour majorations cadres 50–60 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E7</div>
+      <div class="param-label">Majoration âge 50–55 (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E7" class="param-input" value="0.2" step="0.01" min="0">
+      </div>
+      <div class="param-comment">Majoration +20% (cadres) si 50 ≤ âge < 55 et ancienneté ≥ 5 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E8</div>
+      <div class="param-label">Majoration âge 55–60 (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E8" class="param-input" value="0.3" step="0.01" min="0">
+      </div>
+      <div class="param-comment">Majoration +30% (cadres) si 55 ≤ âge < 60 et ancienneté ≥ 5 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E9</div>
+      <div class="param-label">Plancher 50–55 (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E9" class="param-input" value="3" step="1" min="0">
+      </div>
+      <div class="param-comment">Plancher : au moins 3 mois (cadres 50–55)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E10</div>
+      <div class="param-label">Plancher 55–60 (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E10" class="param-input" value="6" step="1" min="0">
+      </div>
+      <div class="param-comment">Plancher : au moins 6 mois (cadres 55–60)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E11</div>
+      <div class="param-label">Plafond ILC (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E11" class="param-input" value="18" step="1" min="0">
+      </div>
+      <div class="param-comment">Plafond : 18 mois de salaire de référence (cadres)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E12</div>
+      <div class="param-label">Seuil ancienneté régime cadres (ans)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E12" class="param-input" value="8" step="1" min="0">
+      </div>
+      <div class="param-comment">Art. 75.3.1.2 : régime renforcé à partir de 8 ans (F,G,H,I)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E13</div>
+      <div class="param-label">Seuil changement coeff (ans)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E13" class="param-input" value="7" step="1" min="0">
+      </div>
+      <div class="param-comment">Art. 75.3.1.2 : changement de coeff à 7 ans (F,G,H,I)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E14</div>
+      <div class="param-label">Coeff 1/5 (jusqu'à 7 ans)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E14" class="param-input" value="0.2" step="0.01" min="0">
+      </div>
+      <div class="param-comment">Art. 75.3.1.2 : 1/5 mois par année jusqu'à 7 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E15</div>
+      <div class="param-label">Coeff 3/5 (au-delà de 7 ans)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E15" class="param-input" value="0.6" step="0.01" min="0">
+      </div>
+      <div class="param-comment">Art. 75.3.1.2 : 3/5 mois par année au-delà de 7 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E16</div>
+      <div class="param-label">Minoration applicable ?</div>
+      <div class="param-input-wrap">
+        <select id="param_E16" class="param-input">
+          <option value="Oui">Oui</option>
+          <option value="Non">Non</option>
+        </select>
+      </div>
+      <div class="param-comment">Non applicable si pas taux plein ou retraite complémentaire avec abattement</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E17</div>
+      <div class="param-label">Minoration 61 ans</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E17" class="param-input" value="0.05" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Décote : -5% à 61 ans (cadres)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E18</div>
+      <div class="param-label">Minoration 62 ans</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E18" class="param-input" value="0.1" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Décote : -10% à 62 ans (cadres)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E19</div>
+      <div class="param-label">Minoration 63 ans</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E19" class="param-input" value="0.2" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Décote : -20% à 63 ans (cadres)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E20</div>
+      <div class="param-label">Minoration 64+ ans</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E20" class="param-input" value="0.4" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Décote : -40% à 64 ans et plus (cadres)</div>
+    </div>
+
+    <!-- Groupe PASS -->
+    <div class="group-header">PASS – Plafond Annuel Sécurité Sociale</div>
+
+    <div class="param-row">
+      <div class="param-key">E21</div>
+      <div class="param-label">PASS annuel (€)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E21" class="param-input" value="48060" step="1" min="0">
+      </div>
+      <div class="param-comment">Plafond Annuel Sécurité Sociale 2026</div>
+    </div>
+
+    <!-- Groupe Mobilité -->
+    <div class="group-header">Mobilité – Paramètres du dispositif mobilité</div>
+
+    <div class="param-row">
+      <div class="param-key">E22</div>
+      <div class="param-label">Coefficient supra-légale (mois/an)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E22" class="param-input" value="0.8" step="0.1" min="0">
+      </div>
+      <div class="param-comment">Coefficient en mois de salaire par année d'ancienneté</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E23</div>
+      <div class="param-label">Plafond supra-légale mobilité (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E23" class="param-input" value="999" step="1" min="0">
+      </div>
+      <div class="param-comment">Plafond en mois pour la supra (999 = pas de plafond)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E24</div>
+      <div class="param-label">Plafond total RCC mobilité (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E24" class="param-input" value="18" step="1" min="0">
+      </div>
+      <div class="param-comment">Plafond exprimé en nombre de mois de salaire (999 = pas de plafond)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E25</div>
+      <div class="param-label">Plafond total RCC mobilité (€)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E25" class="param-input" value="100000" step="1000" min="0">
+      </div>
+      <div class="param-comment">Plafond exprimé en euros (999 = pas de plafond)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E26</div>
+      <div class="param-label">Durée max < 50 ans (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E26" class="param-input" value="12" step="1" min="0">
+      </div>
+      <div class="param-comment">Durée maximale si dispositif mobilité et âge < 50 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E27</div>
+      <div class="param-label">Durée max ≥ 50 ans (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E27" class="param-input" value="15" step="1" min="0">
+      </div>
+      <div class="param-comment">Durée maximale si dispositif mobilité et âge ≥ 50 ans</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E28</div>
+      <div class="param-label">Taux rémunération < 50 ans</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E28" class="param-input" value="0.75" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Rémunération : mobilité, âge < 50 ans (ex: 0.75 = 75%)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E29</div>
+      <div class="param-label">Taux rémunération ≥ 50 ans</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E29" class="param-input" value="0.8" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Rémunération : mobilité, âge ≥ 50 ans (ex: 0.80 = 80%)</div>
+    </div>
+
+    <!-- Groupe CFC -->
+    <div class="group-header">CFC – Congé de Formation / Conversion</div>
+
+    <div class="param-row">
+      <div class="param-key">E30</div>
+      <div class="param-label">Plafond total RCC CFC (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E30" class="param-input" value="999" step="1" min="0">
+      </div>
+      <div class="param-comment">Plafond exprimé en nombre de mois de salaire (999 = pas de plafond)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E31</div>
+      <div class="param-label">Plafond total RCC CFC (€)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E31" class="param-input" value="999" step="1" min="0">
+      </div>
+      <div class="param-comment">Plafond exprimé en euros (999 = pas de plafond)</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E32</div>
+      <div class="param-label">Durée max CFC (mois)</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E32" class="param-input" value="36" step="1" min="0">
+      </div>
+      <div class="param-comment">Durée maximale si dispositif CFC</div>
+    </div>
+
+    <div class="param-row">
+      <div class="param-key">E33</div>
+      <div class="param-label">Taux rémunération CFC</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E33" class="param-input" value="0.7" step="0.01" min="0" max="1">
+      </div>
+      <div class="param-comment">Rémunération CFC (ex: 0.70 = 70% du salaire mensuel de référence)</div>
+    </div>
+
+    <!-- Groupe Préavis -->
+    <div class="group-header">Préavis</div>
+
+    <div class="param-row">
+      <div class="param-key">E34</div>
+      <div class="param-label">Taux du préavis</div>
+      <div class="param-input-wrap">
+        <input type="number" id="param_E34" class="param-input" value="9.99" step="0.01" min="0">
+      </div>
+      <div class="param-comment">Taux du préavis (9.99 = Pas de préavis)</div>
+    </div>
+
+  </div>
+</main>
+
+<div class="save-confirm" id="saveConfirm">✓ Paramètres enregistrés</div>
+
+<script>
+function setStatus(msg, type = '') {
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar ' + type;
+}
+
+async function saveParams() {
+  setStatus('Enregistrement…', 'saving');
+
+  const keys = ['E3','E4','E5','E6','E7','E8','E9','E10','E11','E12','E13','E14','E15',
+    'E16','E17','E18','E19','E20','E21','E22','E23','E24','E25','E26','E27',
+    'E28','E29','E30','E31','E32','E33','E34'];
+
+  const params = {};
+  keys.forEach(key => {
+    const el = document.getElementById('param_' + key);
+    if (!el) return;
+    const val = el.tagName === 'SELECT' ? el.value : parseFloat(el.value);
+    params[key] = isNaN(val) ? el.value : val;
+  });
+
+  try {
+    if (!window._dbRef || !window._dbSet) {
+      throw new Error('Firebase non initialisé. Vérifiez la configuration.');
+    }
+    await window._dbSet(window._dbRef('params'), params);
+    setStatus('✓ Enregistré à ' + new Date().toLocaleTimeString('fr-FR'), 'ok');
+    const toast = document.getElementById('saveConfirm');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  } catch (err) {
+    setStatus('❌ Erreur : ' + err.message, 'error');
+    console.error(err);
+  }
+}
+
+// Keyboard shortcut
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveParams();
+  }
+});
+</script>
+</body>
+</html>
