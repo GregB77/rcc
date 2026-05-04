@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Simulateur RCC</title>
+<title>Simulation RCC</title>
 
 <style>
 body {
@@ -21,65 +21,40 @@ body {
     padding:20px;
     border-radius:10px;
     box-shadow:0 2px 8px rgba(0,0,0,0.08);
-    margin-bottom:20px;
 }
 
-h2 {
-    margin-top:0;
-}
-
-.grid {
-    display:grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap:15px;
-}
-
-label {
-    font-size:13px;
-    color:#555;
-}
-
-input, select {
+table {
     width:100%;
-    padding:8px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    background:#e8f2ff; /* champs bleus */
+    border-collapse:collapse;
 }
 
-.result-line {
-    display:flex;
-    justify-content:space-between;
-    padding:8px 0;
+td {
+    padding:8px;
     border-bottom:1px solid #eee;
 }
 
-.result-line strong {
-    color:#0a58ca;
+td.label {
+    width:50%;
+    color:#555;
+}
+
+td.input input {
+    width:100%;
+    padding:6px;
+    background:#e8f2ff;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+td.value {
+    text-align:right;
+    font-weight:500;
 }
 
 .total {
     font-size:20px;
     font-weight:bold;
     color:#0a58ca;
-    text-align:right;
-    margin-top:10px;
-}
-
-.topbar {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-button {
-    padding:8px 12px;
-    border:none;
-    border-radius:6px;
-    background:#0a58ca;
-    color:white;
-    cursor:pointer;
 }
 </style>
 
@@ -89,63 +64,136 @@ button {
 
 <div class="container">
 
-<div class="topbar">
-    <h2>Simulateur RCC</h2>
-    <a href="rcc_param.html"><button>⚙️ Paramètres</button></a>
-</div>
-
-<!-- 🟦 SAISIE -->
 <div class="card">
-<h3>Données salarié</h3>
 
-<div class="grid">
+<h2>Simulation RCC</h2>
 
-<div>
-<label>Date de référence</label>
-<input type="date" id="date_ref">
-</div>
+<table>
 
-<div>
-<label>Date de naissance</label>
-<input type="date" id="naissance">
-</div>
+<!-- INPUTS (BLEUS) -->
+<tr>
+<td class="label">Date de référence</td>
+<td class="input"><input type="date" id="date_ref"></td>
+<td class="value"></td>
+</tr>
 
-<div>
-<label>Date d'entrée</label>
-<input type="date" id="entree">
-</div>
+<tr>
+<td class="label">Date de naissance</td>
+<td class="input"><input type="date" id="naissance"></td>
+<td></td>
+</tr>
 
-<div>
-<label>Salaire annuel (€)</label>
-<input type="number" id="salaire">
-</div>
+<tr>
+<td class="label">Date d'entrée</td>
+<td class="input"><input type="date" id="entree"></td>
+<td></td>
+</tr>
 
-<div>
-<label>Statut</label>
+<tr>
+<td class="label">Salaire annuel</td>
+<td class="input"><input type="number" id="salaire"></td>
+<td></td>
+</tr>
+
+<tr>
+<td class="label">Statut</td>
+<td class="input">
 <select id="statut">
 <option>Cadre</option>
 <option>Non cadre</option>
 </select>
-</div>
+</td>
+<td></td>
+</tr>
 
-<div>
-<label>Dispositif</label>
+<tr>
+<td class="label">Dispositif</td>
+<td class="input">
 <select id="dispositif">
 <option>CFC</option>
 <option>Mobilité</option>
 </select>
-</div>
+</td>
+<td></td>
+</tr>
 
-</div>
-</div>
+<!-- CALCULS -->
 
-<!-- 🧮 RESULTATS -->
-<div class="card">
-<h3>Résultats</h3>
+<tr><td colspan="3"><strong>Calculs</strong></td></tr>
 
-<div id="results"></div>
+<tr>
+<td class="label">Age</td>
+<td></td>
+<td class="value" id="age"></td>
+</tr>
 
-<div class="total" id="total"></div>
+<tr>
+<td class="label">Ancienneté</td>
+<td></td>
+<td class="value" id="anciennete"></td>
+</tr>
+
+<tr>
+<td class="label">Salaire mensuel</td>
+<td></td>
+<td class="value" id="salaireM"></td>
+</tr>
+
+<tr>
+<td class="label">Indemnité CFC (ILL)</td>
+<td></td>
+<td class="value" id="ill"></td>
+</tr>
+
+<tr>
+<td class="label">Indemnité Mobilité brute</td>
+<td></td>
+<td class="value" id="mobilite"></td>
+</tr>
+
+<tr>
+<td class="label">Bonus âge</td>
+<td></td>
+<td class="value" id="bonus"></td>
+</tr>
+
+<tr>
+<td class="label">Après plafond</td>
+<td></td>
+<td class="value" id="plafond"></td>
+</tr>
+
+<tr>
+<td class="label">Minoration senior</td>
+<td></td>
+<td class="value" id="minoration"></td>
+</tr>
+
+<tr>
+<td class="label">Résultat Mobilité</td>
+<td></td>
+<td class="value" id="resMob"></td>
+</tr>
+
+<tr>
+<td class="label">Indemnité retenue</td>
+<td></td>
+<td class="value" id="retenue"></td>
+</tr>
+
+<tr>
+<td class="label">Supra-légale</td>
+<td></td>
+<td class="value" id="supra"></td>
+</tr>
+
+<tr>
+<td class="label total">TOTAL RCC</td>
+<td></td>
+<td class="value total" id="total"></td>
+</tr>
+
+</table>
 
 </div>
 
@@ -183,61 +231,75 @@ async function simulate() {
 
     const salaireM = salaire / 12;
 
-    // === ILL ===
+    // ILL
     const ill = salaireM * (
         params.ill.taux_0_10 * Math.min(anciennete, 10) +
         params.ill.taux_10_plus * Math.max(anciennete - 10, 0)
     );
 
-    // === MOBILITE ===
-    let mobiliteCoef;
-
+    // Mobilité
+    let coef;
     if (anciennete < params.mobilite.seuil_cadre) {
-        mobiliteCoef = params.ill.taux_0_10 * anciennete;
+        coef = params.ill.taux_0_10 * anciennete;
     } else {
-        mobiliteCoef =
+        coef =
             params.mobilite.coeff_1 * params.mobilite.seuil_coeff +
             params.mobilite.coeff_2 * Math.max(anciennete - params.mobilite.seuil_coeff, 0);
     }
 
-    let mobilite = salaireM * mobiliteCoef;
+    let mobilite = salaireM * coef;
+    let bonus = mobilite;
 
-    // === BONUS AGE ===
     if (age >= 50 && age < 55) {
-        mobilite = Math.max(
+        bonus = Math.max(
             mobilite * (1 + params.bonus_age.bonus_50_55),
             params.bonus_age.plancher_50_55 * salaireM
         );
     }
 
     if (age >= 55 && age < 60) {
-        mobilite = Math.max(
+        bonus = Math.max(
             mobilite * (1 + params.bonus_age.bonus_55_60),
             params.bonus_age.plancher_55_60 * salaireM
         );
     }
 
-    // === PLAFOND ===
-    mobilite = Math.min(mobilite, params.plafonds.max_mois * salaireM);
+    let plafond = Math.min(bonus, params.plafonds.max_mois * salaireM);
 
-    // === FINAL ===
-    const final = Math.max(ill, mobilite);
+    // Minoration
+    let reduction = 0;
+    if (age >= 61) reduction = params.minoration.age_61;
+    if (age >= 62) reduction = params.minoration.age_62;
+    if (age >= 63) reduction = params.minoration.age_63;
+    if (age >= 64) reduction = params.minoration.age_64;
 
-    // === UI ===
-    document.getElementById("results").innerHTML = `
-        <div class="result-line"><span>Age</span><span>${age.toFixed(1)} ans</span></div>
-        <div class="result-line"><span>Ancienneté</span><span>${anciennete.toFixed(1)} ans</span></div>
-        <div class="result-line"><span>Salaire mensuel</span><span>${salaireM.toFixed(2)} €</span></div>
+    let resMob = plafond * (1 - reduction);
 
-        <div class="result-line"><span>Indemnité CFC</span><span>${ill.toFixed(2)} €</span></div>
-        <div class="result-line"><span>Indemnité Mobilité</span><span>${mobilite.toFixed(2)} €</span></div>
-    `;
+    // Choix final
+    let retenue = Math.max(ill, resMob);
 
-    document.getElementById("total").innerText =
-        "Total RCC : " + final.toFixed(2) + " €";
+    // Supra
+    let supra = salaireM * Math.min(params.supra.coef_annee * anciennete, params.supra.coef_max);
+
+    let total = retenue + supra;
+
+    // UI
+    document.getElementById("age").innerText = age.toFixed(1);
+    document.getElementById("anciennete").innerText = anciennete.toFixed(1);
+    document.getElementById("salaireM").innerText = salaireM.toFixed(2);
+
+    document.getElementById("ill").innerText = ill.toFixed(2);
+    document.getElementById("mobilite").innerText = mobilite.toFixed(2);
+    document.getElementById("bonus").innerText = bonus.toFixed(2);
+    document.getElementById("plafond").innerText = plafond.toFixed(2);
+    document.getElementById("minoration").innerText = (reduction * 100).toFixed(0) + "%";
+    document.getElementById("resMob").innerText = resMob.toFixed(2);
+    document.getElementById("retenue").innerText = retenue.toFixed(2);
+    document.getElementById("supra").innerText = supra.toFixed(2);
+    document.getElementById("total").innerText = total.toFixed(2) + " €";
 }
 
-// recalcul live
+// live
 document.querySelectorAll("input, select").forEach(el => {
     el.addEventListener("input", simulate);
 });
