@@ -1,5 +1,83 @@
 <!DOCTYPE html>
-<!--<script src="rcc.js"></script>-->
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation RCC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="nav">
+        <a href="rcc_param.html">Paramètres</a>
+        <a href="sim_rcc.html">Simulation</a>
+    </div>
+
+    <h1>Simulation RCC</h1>
+
+    <table class="table">
+
+        <tr>
+            <td>Date de référence</td>
+            <td><input class="dynamic" type="date" id="refDate"></td>
+        </tr>
+
+        <tr>
+            <td>Statut</td>
+            <td>
+                <select class="dynamic" id="statut">
+                    <option>Cadre</option>
+                    <option>Non cadre</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Dispositif</td>
+            <td>
+                <select class="dynamic" id="dispositif">
+                    <option>CFC</option>
+                    <option>Mobilité</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Date de naissance</td>
+            <td><input class="dynamic" type="date" id="birthDate"></td>
+        </tr>
+
+        <tr>
+            <td>Date d'entrée</td>
+            <td><input class="dynamic" type="date" id="entryDate"></td>
+        </tr>
+
+        <tr>
+            <td>Salaire annuel brut</td>
+            <td><input class="dynamic" type="number" id="annualSalary"></td>
+        </tr>
+
+        <tr>
+            <td>Forcer ILL</td>
+            <td>
+                <input type="checkbox" id="forcerILL">
+            </td>
+        </tr>
+
+    </table>
+
+    <button onclick="simulate()">Calculer</button>
+
+    <h2>Résultats</h2>
+
+    <table class="table">
+        <tbody id="results"></tbody>
+    </table>
+
+</div>
+
+<script src="rcc.js"></script>
 
 <script>
 function formatEuro(value) {
@@ -68,23 +146,4 @@ function simulate() {
             <td class="result">${formatEuro(result.remunerationMensuelle)}</td>
         </tr>
 
-        <tr>
-            <td>Durée du dispositif</td>
-            <td class="result">${result.dureeDispositif} mois</td>
-        </tr>
-
-        <tr>
-            <td>Rémunération totale</td>
-            <td class="result">${formatEuro(result.remunerationTotale)}</td>
-        </tr>
-
-        <tr>
-            <td>Rémunération + indemnité</td>
-            <td class="result">${formatEuro(result.remunerationAvecIndemnite)}</td>
-        </tr>
-    `;
-}
-</script>
-
-</body>
 </html>
