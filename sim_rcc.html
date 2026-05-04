@@ -1,36 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simulateur RCC</title>
-  <link rel="stylesheet" href="sim_rcc.css" />
+<meta charset="UTF-8">
+<title>Simulation RCC</title>
+<style>
+body { font-family: Arial; padding:20px; }
+.result { margin:10px 0; }
+</style>
 </head>
+
 <body>
-  <header class="topbar">
-    <h1>Simulateur RCC (A2:C34) – "RCC avec Préavis"</h1>
-    <div class="actions">
-      <a href="rcc_param.html">Paramètres</a>
-      <button id="btnRecalc" class="primary" type="button">Recalculer</button>
-      <button id="btnExport" type="button">Exporter CSV</button>
-    </div>
-  </header>
 
-  <main class="container">
-    <p class="hint">Les cellules en <span class="blue">bleu</span> sont modifiables. Les paramètres (E2:G36) proviennent de <code>rcc_param.html</code> via LocalStorage.</p>
+<h2>Résultats RCC</h2>
 
-    <section class="card">
-      <div class="tableWrap">
-        <table id="grid" class="grid"></table>
-      </div>
-    </section>
+<div id="results"></div>
 
-    <details class="debug">
-      <summary>Formules & état (diagnostic)</summary>
-      <pre id="debug"></pre>
-    </details>
-  </main>
+<script>
 
-  <script src="sim_rcc.js"></script>
+function yearsBetween(d1, d2) {
+    return (new Date(d2) - new Date(d1)) / (365.25 * 24 * 3600 * 1000);
+}
+
+function simulate() {
+
+    const data = JSON.parse(localStorage.getItem("rcc_data"));
+
+    const age = yearsBetween(data.naissance, data.date_ref);
+    const anciennete = yearsBetween(data.entree, data.date_ref);
+
+    const salaire_mensuel = data.salaire_annuel / 12;
+
+    // === LOGIQUE RCC SIMPLIFIÉE (à ajuster selon ton Excel) ===
+
+    let indemnite = 0;
+
+    if (anciennete * 12 >= data.ill_min) {
+
+        if (anciennete <= 10) {
+            indemnite = anciennete * data.taux1 * salaire_mensuel;
+        } else {
+            indemnite =
+                (10 * data.taux1 + (anciennete - 10) * data.taux2)
+                * salaire_mensuel;
+        }
+    }
+
+    const resultHTML = `
+        <div class="result">Age : ${age.toFixed(1)} ans</div>
+        <div class="result">Ancienneté : ${anciennete.toFixed(1)} ans</div>
+        <div class="result">Salaire mensuel : ${salaire_mensuel.toFixed(2)} €</div>
+        <div class="result"><strong>Indemnité RCC : ${indemnite.toFixed(2)} €</strong></div>
+    `;
+
+    document.getElementById("results").innerHTML = resultHTML;
+}
+
+simulate();
+
+</script>
+
 </body>
 </html>
