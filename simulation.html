@@ -399,7 +399,7 @@
     <div class="section-title">Informations calculées</div>
     <div class="computed-row">
       <div class="field-label">Date de référence (notification / rupture)</div>
-      <div class="computed-value" id="disp_B3">—</div>
+      <div class="computed-value" id="disp_B3">1 janvier 2027</div>
     </div>
     <div class="computed-row">
       <div class="field-label">Âge (années)</div>
@@ -564,9 +564,11 @@ function setEl(id, val) {
   if (el) el.innerHTML = val;
 }
 
-// ─── Today as reference date ──────────────────────────────────────────────
+// ─── Reference date from Firebase params (fallback: 01/01/2027) ──────────
 function getRefDate() {
-  return new Date(); // B3 = aujourd'hui
+  const b3 = window._params?.B3;
+  if (b3) return new Date(b3);
+  return new Date(2027, 0, 1);
 }
 
 // ─── Main calculation ─────────────────────────────────────────────────────
