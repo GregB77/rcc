@@ -3,16 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulateur RCC – Indemnités</title>
+<title>Simulateur RCC – CFE-CGC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  // ⚠️ Remplacer par votre config Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCOXHEDdPKlGOV9_XaQlBp3RbEk0Lodi_8",
     authDomain: "simu-rcc.firebaseapp.com",
@@ -181,6 +179,10 @@
     box-shadow: var(--shadow);
   }
 
+  .card {
+    overflow: visible;
+  }
+
   .card-header {
     display: flex;
     align-items: center;
@@ -208,18 +210,74 @@
   /* FIELD ROWS */
   .field-row {
     display: grid;
-    grid-template-columns: 1fr 210px;
+    grid-template-columns: 1fr 210px 1fr 210px;
     align-items: center;
     padding: 13px 20px;
     border-bottom: 1px solid var(--light);
     gap: 16px;
-    transition: background 0.12s;
   }
   .field-row:last-child { border-bottom: none; }
   .field-row:hover { background: var(--offwhite); }
 
   .field-label { font-size: 0.9rem; color: var(--text); }
   .field-label small { display: block; font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px 16px;
+    padding: 16px 20px 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .field-label small {
+    font-size: 0.68rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--muted);
+  }
+
+  .field-hint {
+    font-size: 0.78rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .field input,
+  .field select {
+    height: 36px;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    border-radius: 4px;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 2px rgba(58,122,191,0.12);
+  }
+
+  /* champ pleine largeur */
+  .field.full {
+    grid-column: span 2;
+  }
 
   input[type="date"], input[type="number"], select {
     width: 100%;
@@ -314,7 +372,10 @@
     .main { padding: 20px 12px 60px; }
     .field-row, .result-row, .computed-row { grid-template-columns: 1fr; }
     .result-value, .computed-value { text-align: left; }
+    .form-grid {grid-template-columns: 1fr;}
+    .field.full {grid-column: span 1;}
   }
+
 </style>
 </head>
 <body>
@@ -336,48 +397,52 @@
 
 <main class="main">
   <div class="notice">
-    📌 <strong>Données personnelles :</strong> Les informations saisies restent dans votre navigateur (session uniquement) et ne sont jamais transmises. Les paramètres de calcul sont définis par l'administrateur.
+    📌 <strong>Données personnelles :</strong> Les informations saisies ne sont jamais enregistrées ou transmises.
   </div>
 
-  <div class="card">
-    <div class="card-header"><div class="card-header-dot"></div><h2>Vos données</h2></div>
-    <div class="field-row">
-      <div class="field-label">Statut métallurgie<small>Cadre ou Non-cadre</small></div>
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-dot"></div>
+    <h2>Vos données</h2>
+  </div>
+
+  <div class="form-grid">
+
+    <div class="field">
+      <div class="field-label">Statut <span class="field-hint">· Cadre / Non-cadre</span></div>
       <select id="B4" onchange="calculate()">
         <option value="" disabled selected>— Sélectionner —</option>
         <option value="Cadre">Cadre</option>
         <option value="Non-cadre">Non-cadre</option>
       </select>
     </div>
-    <div class="field-row">
-      <div class="field-label">Dispositif<small>Mobilité ou CFC</small></div>
+
+    <div class="field">
+      <div class="field-label">Dispositif <span class="field-hint">· Mobilité / CFC</span></div>
       <select id="B5" onchange="calculate()">
         <option value="" disabled selected>— Sélectionner —</option>
         <option value="Mobilité">Mobilité</option>
         <option value="CFC">CFC</option>
       </select>
     </div>
-    <div class="field-row">
+
+    <div class="field">
       <div class="field-label">Date de naissance</div>
-      <input type="date" id="B6" oninput="calculate()">
+      <input type="date" id="B6" inputmode="numeric" oninput="calculate()">
     </div>
-    <div class="field-row">
-      <div class="field-label">Date d'entrée dans l'entreprise</div>
+
+    <div class="field">
+      <div class="field-label">Date d'entrée</div>
       <input type="date" id="B8" oninput="calculate()">
     </div>
-    <div class="field-row">
-      <div class="field-label">Salaire annuel brut de référence<small>En euros (€)</small></div>
+
+    <div class="field full">
+      <div class="field-label">Salaire annuel brut de référence</div>
       <input type="number" id="B10" min="0" step="100" placeholder="ex : 42 000" oninput="calculate()">
     </div>
-    <div class="field-row">
-      <div class="field-label">Forcer ILL ?<small>Indemnité Légale de Licenciement</small></div>
-      <select id="B12" onchange="calculate()">
-        <option value="" disabled selected>— Sélectionner —</option>
-        <option value="Oui (défaut)">Oui (défaut)</option>
-        <option value="Non">Non</option>
-      </select>
-    </div>
+
   </div>
+</div>
 
   <div class="card">
     <div class="card-header"><div class="card-header-dot"></div><h2>Informations calculées</h2></div>
@@ -510,12 +575,11 @@ function calculate() {
   const dobStr=document.getElementById('B6').value;
   const entryStr=document.getElementById('B8').value;
   const salAnnuel=parseFloat(document.getElementById('B10').value);
-  const forcerILL=document.getElementById('B12').value;
 
   const refDate=getRefDate();
   setEl('disp_B3',fmtDate(refDate));
 
-  if (!dobStr||!entryStr||isNaN(salAnnuel)||!statut||!dispositif||!forcerILL) { clearResults(); return; }
+  if (!dobStr||!entryStr||isNaN(salAnnuel)||!statut||!dispositif) { clearResults(); return; }
 
   const dob=new Date(dobStr), entry=new Date(entryStr);
   const age=yearFrac(dob,refDate), anciennete=yearFrac(entry,refDate);
@@ -553,8 +617,8 @@ function calculate() {
   if(statut==='Cadre'&&E16==="Oui"&&age>=61) resMob=Math.max(pMob*(1-redSenior),indemniteCFC);
 
   let B15;
-  if(forcerILL==='Oui (défaut)'||dispositif==='CFC') B15=indemniteCFC;
-  else B15=resMob;
+  if (dispositif === 'CFC') B15 = indemniteCFC;
+  else B15 = resMob;
 
   const B16raw=salMensuel*Math.min(E23===999?Infinity:E23,E22*anciennete);
   const B16=dispositif==='CFC'?0:(isFinite(B16raw)?B16raw:salMensuel*E22*anciennete);
