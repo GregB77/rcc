@@ -319,7 +319,7 @@
       if (!dispositif) {
         labelB15.textContent = 'Indemnité retenue';
       } else {
-        const code = (dispositif === 'CFC') ? 'ILC' : 'ILL';
+        const code = (dispositif === 'CFC') ? 'ILL' : 'ILC';
         labelB15.innerHTML = `Indemnité retenue : <strong>${code}</strong>`;
       }
     }
