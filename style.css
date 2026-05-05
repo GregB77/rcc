@@ -1,3 +1,10 @@
+/* ==========================================================
+   STYLE.CSS — THEME COMMUN + SPECIFIQUES (SIMULATION + PARAMS)
+   ========================================================== */
+
+/* ==========================================================
+   TOKENS
+   ========================================================== */
 :root{
   --navy:#1a3a6b;
   --blue:#3a7abf;
@@ -17,7 +24,9 @@
   --shadow-lg:0 6px 28px rgba(26,58,107,.16);
 }
 
-/* BASE / RESET ============================================================== */
+/* ==========================================================
+   BASE / RESET
+   ========================================================== */
 *,
 *::before,
 *::after{
@@ -33,7 +42,9 @@ body{
   min-height:100vh;
 }
 
-/* HEADER (commun) ========================================================== */
+/* ==========================================================
+   HEADER (commun)
+   ========================================================== */
 .page-header{
   position:sticky;
   top:0;
@@ -97,14 +108,18 @@ body{
   );
 }
 
-/* MAIN (commun) ========================================================== */
+/* ==========================================================
+   MAIN (commun)
+   ========================================================== */
 .main{
   max-width:980px; /* params par défaut */
   margin:0 auto;
   padding:36px 24px 80px;
 }
 
-/* CARDS (commun) ========================================================== */
+/* ==========================================================
+   CARDS (commun)
+   ========================================================== */
 .card{
   margin-bottom:20px;
   background:var(--white);
@@ -142,7 +157,9 @@ body{
 .card.result .card-header-dot{ background:rgba(255,255,255,.8); }
 .card.cotis .card-header{ background:#2c4a6e; }
 
-/* INPUTS (commun) ========================================================== */
+/* ==========================================================
+   INPUTS (commun)
+   ========================================================== */
 input,
 select{
   width:100%;
@@ -169,6 +186,7 @@ select:focus{
   box-shadow:0 0 0 3px rgba(58,122,191,.14);
 }
 
+/* inputs monospace utilisés dans params */
 .param-input{
   font-family:'Source Code Pro', monospace;
   font-size:.84rem;
@@ -176,7 +194,9 @@ select:focus{
   padding:7px 12px;
 }
 
-/* BUTTONS (commun) ========================================================== */
+/* ==========================================================
+   BUTTONS (commun)
+   ========================================================== */
 .btn{
   display:flex;
   align-items:center;
@@ -206,6 +226,7 @@ select:focus{
   color:var(--white);
 }
 
+/* bouton "Paramètres" (simulation) */
 .btn-params{
   display:flex;
   align-items:center;
@@ -228,7 +249,9 @@ select:focus{
   color:var(--white);
 }
 
-/* BADGES (commun) ========================================================== */
+/* ==========================================================
+   BADGES (commun)
+   ========================================================== */
 .badge{
   display:inline-block;
   padding:2px 10px;
@@ -249,7 +272,9 @@ select:focus{
   color:#1e6e3a;
 }
 
-/* FOOTER (commun) ========================================================== */
+/* ==========================================================
+   FOOTER (commun)
+   ========================================================== */
 .page-footer{
   padding:14px 36px;
   background:var(--navy);
@@ -261,15 +286,20 @@ select:focus{
   color:rgba(255,255,255,.38);
 }
 
-/* SIMULATION — SPECIFIQUES ========================================================== */
+/* ==========================================================
+   SIMULATION — SPECIFIQUES
+   ========================================================== */
 
+/* largeur simulation */
 body.simulation .main{ max-width:860px; }
 
+/* colonnes stables (valeurs & inputs) */
 body.simulation{
-  --value-col: clamp(140px, 38vw, 210px);
-  --input-col: clamp(140px, 46vw, 200px);
+  --value-col: clamp(140px, 38vw, 210px); /* valeurs résultats */
+  --input-col: clamp(150px, 46vw, 210px); /* champs formulaire (mobile row) */
 }
 
+/* encart notice */
 .notice{
   margin-bottom:28px;
   padding:11px 16px;
@@ -282,6 +312,7 @@ body.simulation{
   border-radius:4px;
 }
 
+/* formulaire desktop */
 .form-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -318,12 +349,14 @@ body.simulation{
   color:var(--muted);
 }
 
+/* Champ salaire : style “montant” */
 #B10{
   font-family:'Source Code Pro', monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing:.02em;
 }
 
+/* computed / result rows (desktop + mobile) */
 .computed-row,
 .result-row{
   display:grid;
@@ -355,7 +388,9 @@ body.simulation{
 .result-row.highlight .result-value{ color:var(--blue); font-weight:600; }
 .result-value.warn{ color:var(--red); }
 
-/* PARAMS — SPECIFIQUES ========================================================== */
+/* ==========================================================
+   PARAMS — SPECIFIQUES
+   ========================================================== */
 
 .header-actions{
   display:flex;
@@ -364,6 +399,7 @@ body.simulation{
   flex-wrap:wrap;
 }
 
+/* status bar */
 .status-bar{
   min-width:240px;
   padding:6px 14px;
@@ -406,6 +442,7 @@ body.simulation{
   color:var(--muted);
 }
 
+/* table params */
 .params-table{
   background:var(--white);
   border:1px solid var(--border);
@@ -497,6 +534,7 @@ body.simulation{
   background:#fdf4f5;
 }
 
+/* toast */
 .save-toast{
   position:fixed;
   bottom:32px;
@@ -521,26 +559,18 @@ body.simulation{
   opacity:1;
 }
 
-/* RESPONSIVE (commun + objectifs UX) ========================================================== */
+/* ==========================================================
+   RESPONSIVE — SIMULATION MOBILE (portrait OK)
+   ========================================================== */
 @media (max-width:600px){
 
-  .header-top{
-    padding:12px 16px;
-    gap:14px;
-  }
+  /* header/main densité */
+  .header-top{ padding:12px 16px; gap:14px; }
+  .logo-wrap img{ height:48px; }
+  .header-titles h1{ font-size:1.1rem; }
+  .main{ padding:20px 12px 60px; }
 
-  .logo-wrap img{
-    height:48px;
-  }
-
-  .header-titles h1{
-    font-size:1.1rem;
-  }
-
-  .main{
-    padding:20px 12px 60px;
-  }
-
+  /* FORMULAIRE : 1 colonne, mais chaque champ en "row" */
   body.simulation .form-grid{
     grid-template-columns:1fr;
     gap:10px;
@@ -563,6 +593,7 @@ body.simulation{
     margin:0;
   }
 
+  /* Tous les champs modifiables alignés à droite (même avant remplissage) */
   body.simulation .field input,
   body.simulation .field select{
     justify-self:end;
@@ -574,6 +605,7 @@ body.simulation{
     color:var(--muted);
   }
 
+  /* RESULTATS & CALCULES : desktop-like */
   body.simulation .computed-row,
   body.simulation .result-row{
     grid-template-columns: 1fr var(--value-col);
@@ -585,13 +617,21 @@ body.simulation{
     text-align:right;
   }
 
+  /* légère densification */
   body.simulation .computed-label,
-  body.simulation .result-label{
-    font-size:.82rem;
-  }
-
+  body.simulation .result-label{ font-size:.82rem; }
   body.simulation .computed-value,
-  body.simulation .result-value{
-    font-size:.88rem;
-  }
+  body.simulation .result-value{ font-size:.88rem; }
+}
+
+/* ==========================================================
+   RESPONSIVE — PARAMS
+   ========================================================== */
+@media (max-width:700px){
+  .table-header{ display:none; }
+  .param-row,
+  .security-row{ grid-template-columns:80px 1fr; }
+  .param-comment,
+  .security-comment{ display:none; }
+  .status-bar{ min-width:160px; font-size:.72rem; }
 }
