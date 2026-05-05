@@ -523,23 +523,75 @@ body.simulation{
 
 /* RESPONSIVE (commun + objectifs UX) ========================================================== */
 @media (max-width:600px){
-  .header-top{ padding:12px 16px; gap:14px; }
-  .logo-wrap img{ height:48px; }
-  .header-titles h1{ font-size:1.1rem; }
-  .main{ padding:20px 12px 60px; }
 
-  body.simulation .form-grid{grid-template-columns:1fr;gap:10px;padding:14px 16px 16px;}
-  body.simulation .field{display:grid;grid-template-columns: 1fr var(--input-col);align-items:center;column-gap:12px;row-gap:4px;}
-  body.simulation .field-label{margin:0;}
-  body.simulation .field input, body.simulation .field select{justify-self:end;}
-  body.simulation .field.full{grid-column: auto;}
-  body.simulation .field-hint{display:inline;white-space:nowrap;}
-  body.simulation .field select:not([value=""]), body.simulation .field input:not(:placeholder-shown){text-align: right;}
-  body.simulation .field input.is-filled, body.simulation .field select.is-filled{text-align: right;}
-  body.simulation .field input[type="date"]:valid{text-align: right;}
-  body.simulation .computed-row, body.simulation .result-row{grid-template-columns:1fr var(--value-col);padding:10px 16px;}
-  body.simulation .computed-value, body.simulation .result-value{text-align:right;}
-  body.simulation .computed-label, body.simulation .result-label{ font-size:.82rem; }
-  body.simulation .computed-value, body.simulation .result-value{ font-size:.88rem; }
-  body.simulation #B10:not(:placeholder-shown){text-align: right;}
+  .header-top{
+    padding:12px 16px;
+    gap:14px;
+  }
+
+  .logo-wrap img{
+    height:48px;
+  }
+
+  .header-titles h1{
+    font-size:1.1rem;
+  }
+
+  .main{
+    padding:20px 12px 60px;
+  }
+
+  body.simulation .form-grid{
+    grid-template-columns:1fr;
+    gap:10px;
+    padding:14px 16px 16px;
+  }
+
+  body.simulation .field{
+    display:grid;
+    grid-template-columns: 1fr var(--input-col);
+    align-items:center;
+    column-gap:12px;
+    row-gap:4px;
+  }
+
+  body.simulation .field.full{
+    grid-column:auto;
+  }
+
+  body.simulation .field-label{
+    margin:0;
+  }
+
+  body.simulation .field input,
+  body.simulation .field select{
+    justify-self:end;
+    text-align:right;
+  }
+
+  body.simulation .field input::placeholder{
+    text-align:right;
+    color:var(--muted);
+  }
+
+  body.simulation .computed-row,
+  body.simulation .result-row{
+    grid-template-columns: 1fr var(--value-col);
+    padding:10px 16px;
+  }
+
+  body.simulation .computed-value,
+  body.simulation .result-value{
+    text-align:right;
+  }
+
+  body.simulation .computed-label,
+  body.simulation .result-label{
+    font-size:.82rem;
+  }
+
+  body.simulation .computed-value,
+  body.simulation .result-value{
+    font-size:.88rem;
+  }
 }
