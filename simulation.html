@@ -1,64 +1,66 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulateur RCC – CFE-CGC</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulateur RCC – CFE-CGC</title>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCOXHEDdPKlGOV9_XaQlBp3RbEk0Lodi_8",
-    authDomain: "simu-rcc.firebaseapp.com",
-    databaseURL: "https://simu-rcc-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "simu-rcc",
-    storageBucket: "simu-rcc.firebasestorage.app",
-    messagingSenderId: "35682807027",
-    appId: "1:35682807027:web:3bed8a15cf650acfc95b86"
-  };
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOXHEDdPKlGOV9_XaQlBp3RbEk0Lodi_8",
+      authDomain: "simu-rcc.firebaseapp.com",
+      databaseURL: "https://simu-rcc-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "simu-rcc",
+      storageBucket: "simu-rcc.firebasestorage.app",
+      messagingSenderId: "35682807027",
+      appId: "1:35682807027:web:3bed8a15cf650acfc95b86"
+    };
 
-  const DEFAULT_PARAMS = {
-    B3: "2027-01-01",
-    E3: 8, E4: 0.25, E5: 0.3333, E6: 5,
-    E7: 0.2, E8: 0.3, E9: 3, E10: 6,
-    E11: 18, E12: 8, E13: 7, E14: 0.2,
-    E15: 0.6, E16: "Oui", E17: 0.05,
-    E18: 0.10, E19: 0.20, E20: 0.40,
-    E21: 48060, E22: 0.8, E23: 999,
-    E24: 18, E25: 100000, E26: 12,
-    E27: 15, E28: 0.75, E29: 0.80,
-    E30: 999, E31: 999, E32: 36,
-    E33: 0.7, E34: 9.99
-  };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-  window._params = { ...DEFAULT_PARAMS };
-  window._paramsLoaded = false;
+    const DEFAULT_PARAMS = {
+      B3: "2027-01-01",
+      E3: 8, E4: 0.25, E5: 0.3333, E6: 5,
+      E7: 0.2, E8: 0.3, E9: 3, E10: 6,
+      E11: 18, E12: 8, E13: 7, E14: 0.2,
+      E15: 0.6, E16: "Oui", E17: 0.05,
+      E18: 0.10, E19: 0.20, E20: 0.40,
+      E21: 48060, E22: 0.8, E23: 999,
+      E24: 18, E25: 100000, E26: 12,
+      E27: 15, E28: 0.75, E29: 0.80,
+      E30: 999, E31: 999, E32: 36,
+      E33: 0.7, E34: 9.99
+    };
 
-  const paramsRef = ref(db, 'params');
-  onValue(paramsRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) window._params = { ...DEFAULT_PARAMS, ...data };
-    window._paramsLoaded = true;
-    if (typeof window._onParamsReady === 'function') window._onParamsReady();
-  }, () => {
-    window._paramsLoaded = true;
-    if (typeof window._onParamsReady === 'function') window._onParamsReady();
-  });
-</script>
+    window._params = { ...DEFAULT_PARAMS };
+    window._paramsLoaded = false;
+
+    const paramsRef = ref(db, 'params');
+    onValue(paramsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) window._params = { ...DEFAULT_PARAMS, ...data };
+      window._paramsLoaded = true;
+      if (typeof window._onParamsReady === 'function') window._onParamsReady();
+    }, () => {
+      window._paramsLoaded = true;
+      if (typeof window._onParamsReady === 'function') window._onParamsReady();
+    });
+  </script>
 </head>
+
 <body class="simulation">
 
 <header class="page-header">
   <div class="header-top">
-    <div class="logo-wrap"><img src="logo cfe-cgc.png" alt="CFE-CGC Métallurgie"></div>
+    <div class="logo-wrap"><img src="logo cfe-cgc.png" alt="CFE-CGC Métallurgie" /></div>
     <div class="header-divider"></div>
     <div class="header-titles">
       <h1>Simulateur RCC</h1>
@@ -74,49 +76,55 @@
     📌 <strong>Données personnelles :</strong> Les informations saisies ne sont jamais enregistrées ou transmises.
   </div>
 
-<div class="card">
-  <div class="card-header">
-    <div class="card-header-dot"></div>
-    <h2>Vos données</h2>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-dot"></div>
+      <h2>Vos données</h2>
+    </div>
+
+    <div class="form-grid">
+      <div class="field">
+        <div class="field-label">Statut <span class="field-hint">· Cadre / Non-cadre</span></div>
+        <select id="B4" onchange="calculate()">
+          <option value="" disabled selected>— Sélectionner —</option>
+          <option value="Cadre">Cadre</option>
+          <option value="Non-cadre">Non-cadre</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Dispositif <span class="field-hint">· Mobilité / CFC</span></div>
+        <select id="B5" onchange="calculate()">
+          <option value="" disabled selected>— Sélectionner —</option>
+          <option value="Mobilité">Mobilité</option>
+          <option value="CFC">CFC</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Date de naissance</div>
+        <input type="date" id="B6" min="1962-01-01" max="2007-01-01" oninput="calculate()" />
+      </div>
+
+      <div class="field">
+        <div class="field-label">Date d'entrée</div>
+        <input type="date" id="B8" oninput="calculate()" />
+      </div>
+
+      <!-- SOLUTION 2 (PRO) : champ text, affichage formaté en € -->
+      <div class="field full">
+        <div class="field-label">Salaire annuel brut de référence</div>
+        <input
+          type="text"
+          id="B10"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="ex : 42 000 €"
+          oninput="calculate()"
+        />
+      </div>
+    </div>
   </div>
-
-  <div class="form-grid">
-
-    <div class="field">
-      <div class="field-label">Statut <span class="field-hint">· Cadre / Non-cadre</span></div>
-      <select id="B4" onchange="calculate()">
-        <option value="" disabled selected>— Sélectionner —</option>
-        <option value="Cadre">Cadre</option>
-        <option value="Non-cadre">Non-cadre</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <div class="field-label">Dispositif <span class="field-hint">· Mobilité / CFC</span></div>
-      <select id="B5" onchange="calculate()">
-        <option value="" disabled selected>— Sélectionner —</option>
-        <option value="Mobilité">Mobilité</option>
-        <option value="CFC">CFC</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <div class="field-label">Date de naissance</div>
-      <input type="date" id="B6" min="1962-01-01" max="2007-01-01" oninput="calculate()">
-    </div>
-
-    <div class="field">
-      <div class="field-label">Date d'entrée</div>
-      <input type="date" id="B8" oninput="calculate()">
-    </div>
-
-    <div class="field full">
-      <div class="field-label">Salaire annuel brut de référence</div>
-      <input type="number" id="B10" min="0" step="100" placeholder="ex : 42 000" oninput="calculate()">
-    </div>
-
-  </div>
-</div>
 
   <div class="card">
     <div class="card-header"><div class="card-header-dot"></div><h2>Informations calculées</h2></div>
@@ -140,7 +148,8 @@
 
   <div class="card result">
     <div class="card-header"><div class="card-header-dot"></div><h2>Indemnité perçue</h2></div>
-        <div class="result-row">
+
+    <div class="result-row">
       <div class="result-label" id="label_B15">Indemnité retenue</div>
       <div class="result-value" id="res_B15">—</div>
     </div>
@@ -149,7 +158,7 @@
       <div class="result-value" id="res_B16">—</div>
     </div>
     <div class="result-row">
-      <div class="result-label">Total indemnité RCC avant plafond</div>
+      <div class="result-label">Indemnité avant plafond</div>
       <div class="result-value" id="res_B17">—</div>
     </div>
     <div class="result-row">
@@ -157,7 +166,7 @@
       <div class="result-value" id="res_B19">—</div>
     </div>
     <div class="result-row highlight">
-      <div class="result-label"><strong>Total indemnité RCC avec plafond</strong></div>
+      <div class="result-label"><strong>Indemnité avec plafond</strong></div>
       <div class="result-value" id="res_B18">—</div>
     </div>
     <div class="result-row highlight">
@@ -224,11 +233,7 @@
 
   // ---------- DOM HELPERS ----------
   const byId = (id) => document.getElementById(id);
-
-  // Cache DOM lookups (small but clean & fast)
-  const dom = new Proxy({}, {
-    get: (_, id) => byId(id)
-  });
+  const dom = new Proxy({}, { get: (_, id) => byId(id) });
 
   const setText = (id, value) => {
     const el = dom[id];
@@ -242,7 +247,7 @@
     el.innerHTML = html;
   };
 
-  // ---------- FORMATTERS (created once) ----------
+  // ---------- FORMATTERS ----------
   const nfEuro0 = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
   const nf1 = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -264,6 +269,41 @@
     return d.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  // ---------- EURO INPUT (SOLUTION 2 PRO) ----------
+  const euroFmt0 = new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0
+  });
+
+  // Ex: "42 000 €" -> 42000 ; "42000" -> 42000
+  function parseEuroInput(str) {
+    if (!str) return NaN;
+    const digits = String(str).replace(/[^\d]/g, '');
+    if (!digits) return NaN;
+    return Number(digits);
+  }
+
+  function formatEuroField(el) {
+    const n = parseEuroInput(el.value);
+    if (!Number.isFinite(n)) {
+      el.dataset.raw = '';
+      return;
+    }
+    el.dataset.raw = String(n);
+    el.value = euroFmt0.format(n); // "42 000 €"
+  }
+
+  function getSalaryAnnual() {
+    const el = dom.B10;
+    if (!el) return NaN;
+
+    const raw = Number(el.dataset.raw);
+    if (Number.isFinite(raw) && raw > 0) return raw;
+
+    return parseEuroInput(el.value);
+  }
+
   // ---------- DATE / MATH HELPERS ----------
   const yearFrac = (d1, d2) => Math.abs(d1 - d2) / (1000 * 60 * 60 * 24 * 365.25);
 
@@ -276,7 +316,6 @@
   const getRefDate = () => new Date(window._params?.B3 || '2027-01-01');
 
   // ---------- PARAMS ----------
-  // IMPORTANT: single source of truth (no duplication)
   const DEFAULT_PARAMS = window.DEFAULT_PARAMS || {
     B3: "2027-01-01",
     E3: 8, E4: 0.25, E5: 0.3333, E6: 5,
@@ -313,7 +352,7 @@
     const statut = dom.B4?.value || '';
     const dispositif = dom.B5?.value || '';
 
-    // Label B15 (single, consistent logic)
+    // Label B15 (conserve ton mapping actuel)
     const labelB15 = dom.label_B15;
     if (labelB15) {
       if (!dispositif) {
@@ -327,7 +366,9 @@
     // Inputs
     const dob = dom.B6?.valueAsDate ?? new Date(dom.B6?.value || '');
     const entry = dom.B8?.valueAsDate ?? new Date(dom.B8?.value || '');
-    const salAnnuel = Number(dom.B10?.value);
+
+    // IMPORTANT : salaire via getter robuste (champ affiché "€")
+    const salAnnuel = getSalaryAnnual();
 
     const refDate = getRefDate();
     setText('disp_B3', fmtDate(refDate));
@@ -376,11 +417,7 @@
     const pMob = Math.min(bonusAge, P.E11 * salMensuel);
 
     // ----- RÉDUCTION SENIOR -----
-    const reductions = {
-      61: P.E17,
-      62: P.E18,
-      63: P.E19
-    };
+    const reductions = { 61: P.E17, 62: P.E18, 63: P.E19 };
     const redSenior = reductions[Math.floor(age)] ?? (age >= 64 ? P.E20 : 0);
 
     let resMob = pMob;
@@ -434,10 +471,7 @@
     setText('res_B17', fmtEuro(B17));
     setText('res_B18', fmtEuro(B18));
 
-    setHTML(
-      'res_B19',
-      `<span class="badge ${B19 === 'Oui' ? 'badge-oui' : 'badge-non'}">${B19}</span>`
-    );
+    setHTML('res_B19', `<span class="badge ${B19 === 'Oui' ? 'badge-oui' : 'badge-non'}">${B19}</span>`);
 
     setText('res_B20', `${fmtNum(B20)} mois`);
 
@@ -466,21 +500,61 @@
 
       const key = 'sim_' + id;
       const saved = sessionStorage.getItem(key);
-      if (saved) el.value = saved;
 
-      const save = () => sessionStorage.setItem(key, el.value);
+      // Restore
+      if (saved) {
+        if (id === 'B10') {
+          // saved contient le BRUT (ex: 42000)
+          el.dataset.raw = saved;
+          el.value = euroFmt0.format(Number(saved));
+        } else {
+          el.value = saved;
+        }
+      }
+
+      const save = () => {
+        if (id === 'B10') {
+          const raw = el.dataset.raw || String(parseEuroInput(el.value) || '');
+          sessionStorage.setItem(key, raw);
+        } else {
+          sessionStorage.setItem(key, el.value);
+        }
+      };
+
       el.addEventListener('input', save);
       el.addEventListener('change', save);
 
-      // Optionally recalc on any change without relying on inline handlers
+      // recalcul
       el.addEventListener('input', calculate);
       el.addEventListener('change', calculate);
     });
 
+    // Gestion UX du champ € (édition brut / affichage formaté)
+    const b10 = dom.B10;
+    if (b10) {
+      b10.addEventListener('focus', () => {
+        const raw = b10.dataset.raw;
+        if (raw) b10.value = raw; // édition facile
+      });
+
+      b10.addEventListener('blur', () => {
+        if (!b10.value) { b10.dataset.raw = ''; return; }
+        formatEuroField(b10); // affiche "42 000 €"
+        // sauvegarde brut à la sortie (au cas où)
+        sessionStorage.setItem('sim_B10', b10.dataset.raw || '');
+        calculate();
+      });
+
+      b10.addEventListener('input', () => {
+        const n = parseEuroInput(b10.value);
+        b10.dataset.raw = Number.isFinite(n) ? String(n) : '';
+      });
+    }
+
     calculate();
   };
-
 })();
 </script>
+
 </body>
 </html>
