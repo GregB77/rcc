@@ -283,8 +283,8 @@ body.simulation{
 
 .form-grid{
   display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px 16px;
+  grid-template-columns:1fr;
+  gap:10px;
   padding:16px 20px 18px;
 }
 
@@ -312,7 +312,7 @@ body.simulation{
 }
 
 .form-grid .field.full{
-  grid-column:span 2;
+  grid-column:span 1;
 }
 
 .field.full{ grid-column:span 2; }
