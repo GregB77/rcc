@@ -572,12 +572,9 @@ body.simulation{
     text-align:right;
   }
 
-  body.simulation .computed-label,
-  body.simulation .result-label{ font-size:.82rem; }
+  body.simulation .computed-label, body.simulation .result-label{ font-size:.82rem; }
 
-  body.simulation .computed-value,
-  body.simulation .result-value{ font-size:.88rem; }
-}
+  body.simulation .computed-value, body.simulation .result-value{ font-size:.88rem; }
 
   body.simulation .field select:not([value=""]),
   body.simulation .field input:not(:placeholder-shown){
