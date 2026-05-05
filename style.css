@@ -309,6 +309,7 @@ body.simulation{
   width:var(--value-col);
   min-width:140px;
   max-width:220px;
+  text-align:right;
 }
 
 .form-grid .field.full{
