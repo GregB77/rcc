@@ -535,6 +535,7 @@ body.simulation{
   body.simulation .field.full{grid-column: auto;}
   body.simulation .field-hint{display:inline;white-space:nowrap;}
   body.simulation .field select:not([value=""]), body.simulation .field input:not(:placeholder-shown){text-align: right;}
+  body.simulation .field input.is-filled, body.simulation .field select.is-filled{text-align: right;}
   body.simulation .field input[type="date"]:valid{text-align: right;}
   body.simulation .computed-row, body.simulation .result-row{grid-template-columns:1fr var(--value-col);padding:10px 16px;}
   body.simulation .computed-value, body.simulation .result-value{text-align:right;}
