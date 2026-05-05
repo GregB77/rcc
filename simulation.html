@@ -26,12 +26,12 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Valeurs par défaut (fallback si Firebase indisponible)
   const DEFAULT_PARAMS = {
-    E3: 8, E4: 0.25, E5: 1/3, E6: 5,
+    B3: "2027-01-01",
+    E3: 8, E4: 0.25, E5: 0.3333, E6: 5,
     E7: 0.2, E8: 0.3, E9: 3, E10: 6,
-    E11: 18, E12: 8, E13: 7, E14: 1/5,
-    E15: 3/5, E16: "Oui", E17: 0.05,
+    E11: 18, E12: 8, E13: 7, E14: 0.2,
+    E15: 0.6, E16: "Oui", E17: 0.05,
     E18: 0.10, E19: 0.20, E20: 0.40,
     E21: 48060, E22: 0.8, E23: 999,
     E24: 18, E25: 100000, E26: 12,
@@ -46,13 +46,10 @@
   const paramsRef = ref(db, 'params');
   onValue(paramsRef, (snapshot) => {
     const data = snapshot.val();
-    if (data) {
-      window._params = { ...DEFAULT_PARAMS, ...data };
-    }
+    if (data) window._params = { ...DEFAULT_PARAMS, ...data };
     window._paramsLoaded = true;
     if (typeof window._onParamsReady === 'function') window._onParamsReady();
-  }, (error) => {
-    console.warn("Firebase indisponible, utilisation des valeurs par défaut.", error);
+  }, () => {
     window._paramsLoaded = true;
     if (typeof window._onParamsReady === 'function') window._onParamsReady();
   });
@@ -60,449 +57,418 @@
 
 <style>
   :root {
-    --bg: #f5f0e8;
-    --surface: #fffcf7;
-    --border: #d9cfc0;
-    --text: #1a1612;
-    --muted: #7a7163;
-    --accent: #b5490a;
-    --accent2: #1d5c3a;
-    --blue: #2a4f7c;
-    --input-bg: #eaf1fb;
-    --input-border: #a0b8d8;
-    --result-bg: #f0f7f3;
-    --result-border: #7db89a;
-    --shadow: 0 2px 16px rgba(26,22,18,0.08);
+    --navy:    #1a3a6b;
+    --blue:    #3a7abf;
+    --sky:     #5b9fd4;
+    --red:     #c8102e;
+    --white:   #ffffff;
+    --offwhite:#f4f7fb;
+    --light:   #e8eef6;
+    --border:  #c5d5e8;
+    --text:    #1a2940;
+    --muted:   #5a6e87;
+    --input-bg:#eaf2fb;
+    --shadow:  0 2px 12px rgba(26,58,107,0.13);
+    --shadow-lg: 0 6px 28px rgba(26,58,107,0.16);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--offwhite);
     color: var(--text);
     min-height: 100vh;
   }
 
+  /* HEADER */
   .page-header {
-    background: var(--text);
-    color: #f5f0e8;
-    padding: 32px 40px;
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .header-top {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
+    padding: 14px 36px;
     gap: 24px;
-    flex-wrap: wrap;
+    border-bottom: 3px solid var(--red);
   }
 
-  .page-header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2rem;
-    font-weight: 400;
-    line-height: 1.1;
-    flex: 1;
-    min-width: 240px;
+  .logo-wrap img {
+    height: 62px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
   }
 
-  .page-header h1 em {
-    font-style: italic;
-    color: #d4a96a;
+  .header-divider {
+    width: 1px;
+    height: 50px;
+    background: rgba(255,255,255,0.18);
+    flex-shrink: 0;
   }
 
-  .header-meta {
+  .header-titles { flex: 1; }
+
+  .header-titles h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  .header-titles p {
     font-size: 0.78rem;
-    color: #a09688;
-    text-align: right;
-    line-height: 1.6;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 300;
   }
 
-  .header-meta a {
-    color: #d4a96a;
+  .btn-params {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.8);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
     text-decoration: none;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .btn-params:hover { background: rgba(255,255,255,0.16); color: var(--white); }
+
+  .header-stripe {
+    height: 4px;
+    background: linear-gradient(to right, var(--red) 33.33%, var(--white) 33.33%, var(--white) 66.66%, var(--sky) 66.66%);
   }
 
-  .main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-  }
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 36px 24px 80px; }
 
   .notice {
-    background: #fff8ee;
-    border-left: 3px solid var(--accent);
-    padding: 12px 16px;
-    border-radius: 0 6px 6px 0;
+    background: #fffae6;
+    border: 1px solid #e8c84a;
+    border-left: 4px solid #d4a017;
+    border-radius: 4px;
+    padding: 11px 16px;
     font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 32px;
-    line-height: 1.5;
+    color: #6b4c0e;
+    margin-bottom: 28px;
+    line-height: 1.55;
   }
 
-  .section {
-    background: var(--surface);
+  /* CARDS */
+  .card {
+    background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 6px;
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow);
   }
 
-  .section-title {
-    background: var(--text);
-    color: #f5f0e8;
-    font-family: 'DM Serif Display', serif;
-    font-weight: 400;
-    font-size: 0.95rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--navy);
     padding: 10px 20px;
   }
+  .card-header-dot {
+    width: 7px; height: 7px;
+    background: var(--red);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .card-header h2 {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.88);
+  }
+  .card.result .card-header { background: var(--blue); }
+  .card.result .card-header-dot { background: rgba(255,255,255,0.8); }
+  .card.cotis .card-header { background: #2c4a6e; }
 
+  /* FIELD ROWS */
   .field-row {
     display: grid;
-    grid-template-columns: 1fr 200px;
+    grid-template-columns: 1fr 210px;
     align-items: center;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--light);
     gap: 16px;
-    transition: background 0.15s;
+    transition: background 0.12s;
   }
-
   .field-row:last-child { border-bottom: none; }
-  .field-row:hover { background: #faf7f2; }
+  .field-row:hover { background: var(--offwhite); }
 
-  .field-label {
-    font-size: 0.9rem;
-    font-weight: 400;
-    color: var(--text);
-    line-height: 1.4;
-  }
-
-  .field-label small {
-    display: block;
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .field-input {
-    width: 100%;
-  }
+  .field-label { font-size: 0.9rem; color: var(--text); }
+  .field-label small { display: block; font-size: 0.74rem; color: var(--muted); margin-top: 2px; }
 
   input[type="date"], input[type="number"], select {
     width: 100%;
     padding: 8px 12px;
     background: var(--input-bg);
-    border: 1.5px solid var(--input-border);
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    font-family: 'Source Sans 3', sans-serif;
     font-size: 0.9rem;
-    color: var(--blue);
+    color: var(--navy);
     font-weight: 500;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     -webkit-appearance: none;
   }
-
-  input[type="date"]:focus, input[type="number"]:focus, select:focus {
+  input:focus, select:focus {
     border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(42,79,124,0.12);
+    box-shadow: 0 0 0 3px rgba(58,122,191,0.14);
   }
 
-  input[type="number"]::-webkit-inner-spin-button { opacity: 0.5; }
-
-  /* Results section */
-  .results-section {
-    background: var(--surface);
-    border: 1.5px solid var(--result-border);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 24px;
-    box-shadow: var(--shadow);
-  }
-
-  .results-section .section-title {
-    background: var(--accent2);
-  }
-
-  .result-row {
-    display: grid;
-    grid-template-columns: 1fr 200px;
-    align-items: center;
-    padding: 12px 20px;
-    border-bottom: 1px solid #daeee5;
-    gap: 16px;
-  }
-
-  .result-row:last-child { border-bottom: none; }
-
-  .result-row.highlight {
-    background: #e8f4ee;
-  }
-
-  .result-row.highlight .result-value {
-    font-size: 1.15rem;
-    color: var(--accent2);
-    font-weight: 600;
-  }
-
-  .result-label {
-    font-size: 0.88rem;
-    color: var(--text);
-  }
-
-  .result-value {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--blue);
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .result-value.warn { color: var(--accent); }
-
-  /* Computed fields (shown as read-only) */
+  /* COMPUTED ROWS */
   .computed-row {
     display: grid;
-    grid-template-columns: 1fr 200px;
+    grid-template-columns: 1fr 210px;
     align-items: center;
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--border);
-    gap: 16px;
-    background: #f9f6f0;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--light);
+    background: var(--offwhite);
   }
   .computed-row:last-child { border-bottom: none; }
+  .computed-label { font-size: 0.84rem; color: var(--muted); }
   .computed-value {
-    font-size: 0.88rem;
-    color: var(--muted);
+    font-size: 0.84rem;
+    color: var(--navy);
+    font-weight: 500;
     text-align: right;
-    font-style: italic;
+    font-family: 'Source Code Pro', monospace;
   }
 
-  /* Cotisations */
-  .cotis-section .section-title {
-    background: #3a3330;
+  /* RESULT ROWS */
+  .result-row {
+    display: grid;
+    grid-template-columns: 1fr 210px;
+    align-items: center;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--light);
+    gap: 16px;
   }
+  .result-row:last-child { border-bottom: none; }
+  .result-row.highlight { background: #eef5fb; }
+  .result-label { font-size: 0.88rem; color: var(--text); }
+  .result-value {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--navy);
+    text-align: right;
+  }
+  .result-row.highlight .result-value {
+    font-size: 1.08rem;
+    color: var(--blue);
+    font-weight: 600;
+  }
+  .result-value.warn { color: var(--red); }
 
-  .status-badge {
+  .badge {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
+    padding: 2px 10px;
+    border-radius: 3px;
     font-size: 0.78rem;
     font-weight: 600;
-    letter-spacing: 0.03em;
+    font-family: 'Source Sans 3', sans-serif;
   }
-  .badge-ok { background: #d4eedf; color: #1d5c3a; }
-  .badge-warn { background: #fde8d8; color: #b5490a; }
+  .badge-oui { background: #fde8e8; color: var(--red); border: 1px solid #f5c0c0; }
+  .badge-non { background: #e4f0e8; color: #1e6e3a; border: 1px solid #b0d9bc; }
+
+  .page-footer {
+    background: var(--navy);
+    border-top: 3px solid var(--red);
+    padding: 14px 36px;
+    text-align: center;
+    font-size: 0.74rem;
+    color: rgba(255,255,255,0.38);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
 
   @media (max-width: 600px) {
-    .page-header { padding: 24px 20px; }
-    .main { padding: 24px 16px 60px; }
-    .field-row, .result-row, .computed-row {
-      grid-template-columns: 1fr;
-    }
-    .field-input, .result-value { text-align: left; }
+    .header-top { padding: 12px 16px; gap: 14px; }
+    .logo-wrap img { height: 48px; }
+    .header-titles h1 { font-size: 1.1rem; }
+    .main { padding: 20px 12px 60px; }
+    .field-row, .result-row, .computed-row { grid-template-columns: 1fr; }
+    .result-value, .computed-value { text-align: left; }
   }
 </style>
 </head>
 <body>
 
 <header class="page-header">
-  <h1>Simulateur <em>RCC</em><br>Rupture Conventionnelle Collective</h1>
-  <div class="header-meta">
-    Métallurgie · Convention Collective<br>
-    <a href="params.html">⚙ Paramètres →</a>
+  <div class="header-top">
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,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" alt="CFE-CGC Métallurgie">
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-titles">
+      <h1>Simulateur RCC</h1>
+      <p>Rupture Conventionnelle Collective · Métallurgie</p>
+    </div>
+    <a href="params.html" class="btn-params">⚙ Paramètres</a>
   </div>
+  <div class="header-stripe"></div>
 </header>
 
 <main class="main">
   <div class="notice">
-    📌 <strong>Données personnelles :</strong> Les informations saisies restent dans votre navigateur et ne sont pas transmises. Elles sont effacées à la fermeture de l'onglet. Les paramètres de calcul sont définis par l'administrateur.
+    📌 <strong>Données personnelles :</strong> Les informations saisies restent dans votre navigateur (session uniquement) et ne sont jamais transmises. Les paramètres de calcul sont définis par l'administrateur.
   </div>
 
-  <!-- Section Données d'entrée -->
-  <div class="section">
-    <div class="section-title">Vos données</div>
-
+  <div class="card">
+    <div class="card-header"><div class="card-header-dot"></div><h2>Vos données</h2></div>
     <div class="field-row">
-      <div class="field-label">
-        Statut métallurgie
-        <small>Cadre ou Non-cadre</small>
-      </div>
-      <div class="field-input">
-        <select id="B4" onchange="calculate()">
-          <option value="" disabled selected>-- Choisir --</option>
-          <option value="Cadre">Cadre</option>
-          <option value="Non-cadre">Non-cadre</option>
-        </select>
-      </div>
+      <div class="field-label">Statut métallurgie<small>Cadre ou Non-cadre</small></div>
+      <select id="B4" onchange="calculate()">
+        <option value="" disabled selected>— Sélectionner —</option>
+        <option value="Cadre">Cadre</option>
+        <option value="Non-cadre">Non-cadre</option>
+      </select>
     </div>
-
     <div class="field-row">
-      <div class="field-label">
-        Dispositif
-        <small>Mobilité ou CFC</small>
-      </div>
-      <div class="field-input">
-        <select id="B5" onchange="calculate()">
-          <option value="" disabled selected>-- Choisir --</option>
-          <option value="Mobilité">Mobilité</option>
-          <option value="CFC">CFC</option>
-        </select>
-      </div>
+      <div class="field-label">Dispositif<small>Mobilité ou CFC</small></div>
+      <select id="B5" onchange="calculate()">
+        <option value="" disabled selected>— Sélectionner —</option>
+        <option value="Mobilité">Mobilité</option>
+        <option value="CFC">CFC</option>
+      </select>
     </div>
-
     <div class="field-row">
-      <div class="field-label">
-        Date de naissance
-      </div>
-      <div class="field-input">
-        <input type="date" id="B6" oninput="calculate()">
-      </div>
+      <div class="field-label">Date de naissance</div>
+      <input type="date" id="B6" oninput="calculate()">
     </div>
-
     <div class="field-row">
-      <div class="field-label">
-        Date d'entrée dans l'entreprise
-      </div>
-      <div class="field-input">
-        <input type="date" id="B8" oninput="calculate()">
-      </div>
+      <div class="field-label">Date d'entrée dans l'entreprise</div>
+      <input type="date" id="B8" oninput="calculate()">
     </div>
-
     <div class="field-row">
-      <div class="field-label">
-        Salaire annuel brut de référence
-        <small>En euros (€)</small>
-      </div>
-      <div class="field-input">
-        <input type="number" id="B10" min="0" step="100" placeholder="ex : 42 000" oninput="calculate()">
-      </div>
+      <div class="field-label">Salaire annuel brut de référence<small>En euros (€)</small></div>
+      <input type="number" id="B10" min="0" step="100" placeholder="ex : 42 000" oninput="calculate()">
     </div>
-
     <div class="field-row">
-      <div class="field-label">
-        Forcer ILL ?
-        <small>Indemnité Légale de Licenciement</small>
-      </div>
-      <div class="field-input">
-        <select id="B12" onchange="calculate()">
-          <option value="" disabled selected>-- Choisir --</option>
-          <option value="Oui (défaut)">Oui (défaut)</option>
-          <option value="Non">Non</option>
-        </select>
-      </div>
+      <div class="field-label">Forcer ILL ?<small>Indemnité Légale de Licenciement</small></div>
+      <select id="B12" onchange="calculate()">
+        <option value="" disabled selected>— Sélectionner —</option>
+        <option value="Oui (défaut)">Oui (défaut)</option>
+        <option value="Non">Non</option>
+      </select>
     </div>
   </div>
 
-  <!-- Champs calculés (info) -->
-  <div class="section">
-    <div class="section-title">Informations calculées</div>
+  <div class="card">
+    <div class="card-header"><div class="card-header-dot"></div><h2>Informations calculées</h2></div>
     <div class="computed-row">
-      <div class="field-label">Date de référence (notification / rupture)</div>
+      <div class="computed-label">Date de référence</div>
       <div class="computed-value" id="disp_B3">1 janvier 2027</div>
     </div>
     <div class="computed-row">
-      <div class="field-label">Âge (années)</div>
+      <div class="computed-label">Âge</div>
       <div class="computed-value" id="disp_age">—</div>
     </div>
     <div class="computed-row">
-      <div class="field-label">Ancienneté (années)</div>
+      <div class="computed-label">Ancienneté</div>
       <div class="computed-value" id="disp_anciennete">—</div>
     </div>
     <div class="computed-row">
-      <div class="field-label">Salaire mensuel brut de référence</div>
+      <div class="computed-label">Salaire mensuel brut de référence</div>
       <div class="computed-value" id="disp_salaire_mensuel">—</div>
     </div>
   </div>
 
-  <!-- Résultats principaux -->
-  <div class="results-section">
-    <div class="section-title">Résultats de la simulation</div>
-
+  <div class="card result">
+    <div class="card-header"><div class="card-header-dot"></div><h2>Résultats de la simulation</h2></div>
     <div class="result-row highlight">
       <div class="result-label"><strong>Total indemnité RCC avec plafond</strong></div>
       <div class="result-value" id="res_B18">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Indemnité retenue (avant supra)</div>
       <div class="result-value" id="res_B15">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Supra-légale (Mobilité uniquement)</div>
       <div class="result-value" id="res_B16">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Total indemnité RCC avant plafond</div>
       <div class="result-value" id="res_B17">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Plafond atteint ?</div>
       <div class="result-value" id="res_B19">—</div>
     </div>
-
     <div class="result-row">
-      <div class="result-label">Nombre de mois équivalent (indemnité / salaire mensuel)</div>
+      <div class="result-label">Nb mois équivalents (indemnité / salaire mensuel)</div>
       <div class="result-value" id="res_B20">—</div>
     </div>
   </div>
 
-  <!-- Rémunération pendant le dispositif -->
-  <div class="results-section">
-    <div class="section-title">Rémunération pendant le dispositif</div>
-
+  <div class="card result">
+    <div class="card-header"><div class="card-header-dot"></div><h2>Rémunération pendant le dispositif</h2></div>
     <div class="result-row">
       <div class="result-label">Taux de rémunération</div>
       <div class="result-value" id="res_B21">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Rémunération mensuelle brute</div>
       <div class="result-value" id="res_B22">—</div>
     </div>
-
     <div class="result-row">
-      <div class="result-label">Durée maximale du dispositif (mois)</div>
+      <div class="result-label">Durée maximale du dispositif</div>
       <div class="result-value" id="res_B24">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Date de sortie du dispositif</div>
       <div class="result-value" id="res_B25">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Rémunération totale</div>
       <div class="result-value" id="res_B26">—</div>
     </div>
-
     <div class="result-row highlight">
       <div class="result-label"><strong>Rémunération totale y compris indemnité</strong></div>
       <div class="result-value" id="res_B27">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Rémunération moyenne mensuelle sur la durée</div>
       <div class="result-value" id="res_B28">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Écart vs salaire mensuel de référence</div>
       <div class="result-value" id="res_B29">—</div>
     </div>
-
     <div class="result-row">
       <div class="result-label">Nb mois équivalents vs salaire mensuel de référence</div>
       <div class="result-value" id="res_B30">—</div>
     </div>
   </div>
 
-  <!-- Cotisations -->
-  <div class="section cotis-section">
-    <div class="section-title">Cotisations (estimations)</div>
+  <div class="card cotis">
+    <div class="card-header"><div class="card-header-dot"></div><h2>Cotisations (estimations)</h2></div>
     <div class="result-row">
       <div class="result-label">Part soumise aux cotisations URSSAF</div>
       <div class="result-value" id="res_B33">—</div>
@@ -515,300 +481,136 @@
 
 </main>
 
+<footer class="page-footer">CFE-CGC Métallurgie · Simulateur RCC · Usage interne</footer>
+
 <script>
-// ─── Helpers ───────────────────────────────────────────────────────────────
-
-function fmt(n, decimals = 2) {
-  if (n === null || n === undefined || isNaN(n)) return '—';
-  return new Intl.NumberFormat('fr-FR', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  }).format(n) + ' €';
+function fmt(n) {
+  if (n===null||n===undefined||isNaN(n)) return '—';
+  return new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n)+' €';
 }
-
-function fmtN(n, decimals = 2) {
-  if (n === null || n === undefined || isNaN(n)) return '—';
-  return new Intl.NumberFormat('fr-FR', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  }).format(n);
+function fmtN(n,d=2) {
+  if (n===null||n===undefined||isNaN(n)) return '—';
+  return new Intl.NumberFormat('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
 }
+function fmtPct(n) { return (n===null||isNaN(n))?'—':(n*100).toFixed(1)+' %'; }
+function fmtDate(d) { return d?d.toLocaleDateString('fr-FR',{year:'numeric',month:'long',day:'numeric'}):'—'; }
+function setEl(id,val) { const e=document.getElementById(id); if(e) e.innerHTML=val; }
+function yearFrac(d1,d2) { return Math.abs(d1-d2)/(1000*60*60*24*365.25); }
+function addMonths(date,months) { const d=new Date(date); d.setMonth(d.getMonth()+Math.round(months)); return d; }
 
-function fmtPct(n) {
-  if (n === null || n === undefined || isNaN(n)) return '—';
-  return (n * 100).toFixed(1) + ' %';
-}
-
-function fmtDate(d) {
-  if (!d) return '—';
-  return d.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-function yearFrac(date1, date2) {
-  // Approximate YEARFRAC basis=1 (Actual/Actual)
-  const ms = Math.abs(date1 - date2);
-  const days = ms / (1000 * 60 * 60 * 24);
-  // Use average year length
-  const avgYear = 365.25;
-  return days / avgYear;
-}
-
-function addMonths(date, months) {
-  const d = new Date(date);
-  d.setMonth(d.getMonth() + Math.round(months));
-  return d;
-}
-
-function setEl(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.innerHTML = val;
-}
-
-// ─── Reference date from Firebase params (fallback: 01/01/2027) ──────────
 function getRefDate() {
-  const b3 = window._params?.B3;
-  if (b3) return new Date(b3);
-  return new Date(2027, 0, 1);
+  const b3=window._params&&window._params.B3;
+  return b3 ? new Date(b3) : new Date(2027,0,1);
 }
 
-// ─── Main calculation ─────────────────────────────────────────────────────
 function calculate() {
-  const P = window._params || {};
+  const P=window._params||{};
+  const statut=document.getElementById('B4').value;
+  const dispositif=document.getElementById('B5').value;
+  const dobStr=document.getElementById('B6').value;
+  const entryStr=document.getElementById('B8').value;
+  const salAnnuel=parseFloat(document.getElementById('B10').value);
+  const forcerILL=document.getElementById('B12').value;
 
-  // Inputs
-  const statut = document.getElementById('B4').value;
-  const dispositif = document.getElementById('B5').value;
-  const dobStr = document.getElementById('B6').value;
-  const entryStr = document.getElementById('B8').value;
-  const salAnnuel = parseFloat(document.getElementById('B10').value);
-  const forcerILL = document.getElementById('B12').value;
+  const refDate=getRefDate();
+  setEl('disp_B3',fmtDate(refDate));
 
-  const refDate = getRefDate();
-  setEl('disp_B3', fmtDate(refDate));
+  if (!dobStr||!entryStr||isNaN(salAnnuel)||!statut||!dispositif||!forcerILL) { clearResults(); return; }
 
-  if (!dobStr || !entryStr || isNaN(salAnnuel) || !statut || !dispositif || !forcerILL) {
-    clearResults();
-    return;
-  }
+  const dob=new Date(dobStr), entry=new Date(entryStr);
+  const age=yearFrac(dob,refDate), anciennete=yearFrac(entry,refDate);
+  const salMensuel=salAnnuel/12;
 
-  const dob = new Date(dobStr);
-  const entry = new Date(entryStr);
+  setEl('disp_age',fmtN(age,2)+' ans');
+  setEl('disp_anciennete',fmtN(anciennete,2)+' ans');
+  setEl('disp_salaire_mensuel',fmt(salMensuel));
 
-  // B7: âge
-  const age = yearFrac(dob, refDate);
-  // B9: ancienneté
-  const anciennete = yearFrac(entry, refDate);
-  // B11: salaire mensuel
-  const salMensuel = salAnnuel / 12;
+  const E3=P.E3??8,E4=P.E4??0.25,E5=P.E5??0.3333,E6=P.E6??5;
+  const E7=P.E7??0.2,E8=P.E8??0.3,E9=P.E9??3,E10=P.E10??6;
+  const E11=P.E11??18,E12=P.E12??8,E13=P.E13??7,E14=P.E14??0.2;
+  const E15=P.E15??0.6,E16=P.E16??"Oui",E17=P.E17??0.05;
+  const E18=P.E18??0.10,E19=P.E19??0.20,E20=P.E20??0.40;
+  const E21=P.E21??48060,E22=P.E22??0.8,E23=P.E23??999;
+  const E24=P.E24??18,E25=P.E25??100000,E26=P.E26??12;
+  const E27=P.E27??15,E28=P.E28??0.75,E29=P.E29??0.80;
+  const E30=P.E30??999,E31=P.E31??999,E32=P.E32??36;
+  const E33=P.E33??0.7,E34=P.E34??9.99;
 
-  setEl('disp_age', fmtN(age, 2) + ' ans');
-  setEl('disp_anciennete', fmtN(anciennete, 2) + ' ans');
-  setEl('disp_salaire_mensuel', fmt(salMensuel));
+  const indemniteCFC=anciennete<(E3/12)?0:salMensuel*(E4*Math.min(anciennete,10)+E5*Math.max(anciennete-10,0));
+  const coefMob=anciennete<E12?E4*anciennete:E14*E13+E15*Math.max(anciennete-E13,0);
+  const indemMob=salMensuel*coefMob;
 
-  // ── B15: Indemnité retenue (LET formula) ──────────────────────────────
-  const E3 = P.E3 ?? 8;   // ancienneté mini mois
-  const E4 = P.E4 ?? 0.25;
-  const E5 = P.E5 ?? (1/3);
-  const E6 = P.E6 ?? 5;
-  const E7 = P.E7 ?? 0.2;
-  const E8 = P.E8 ?? 0.3;
-  const E9 = P.E9 ?? 3;
-  const E10 = P.E10 ?? 6;
-  const E11 = P.E11 ?? 18;
-  const E12 = P.E12 ?? 8;
-  const E13 = P.E13 ?? 7;
-  const E14 = P.E14 ?? (1/5);
-  const E15 = P.E15 ?? (3/5);
-  const E16 = P.E16 ?? "Oui";
-  const E17 = P.E17 ?? 0.05;
-  const E18 = P.E18 ?? 0.10;
-  const E19 = P.E19 ?? 0.20;
-  const E20 = P.E20 ?? 0.40;
-  const E21 = P.E21 ?? 48060;
-  const E22 = P.E22 ?? 0.8;
-  const E23 = P.E23 ?? 999;
-  const E24 = P.E24 ?? 18;
-  const E25 = P.E25 ?? 100000;
-  const E26 = P.E26 ?? 12;
-  const E27 = P.E27 ?? 15;
-  const E28 = P.E28 ?? 0.75;
-  const E29 = P.E29 ?? 0.80;
-  const E30 = P.E30 ?? 999;
-  const E31 = P.E31 ?? 999;
-  const E32 = P.E32 ?? 36;
-  const E33 = P.E33 ?? 0.7;
-  const E34 = P.E34 ?? 9.99;
+  let bonusAge=indemMob;
+  if (statut==='Cadre'&&age>=50&&age<55&&anciennete>=E6) bonusAge=Math.max(indemMob*(1+E7),E9*salMensuel);
+  else if (statut==='Cadre'&&age>=55&&age<60&&anciennete>=E6) bonusAge=Math.max(indemMob*(1+E8),E10*salMensuel);
 
-  // CFC base indemnité
-  const ancienneteCFC = salMensuel * (E4 * Math.min(anciennete, 10) + E5 * Math.max(anciennete - 10, 0));
-  const indemniteCFC = anciennete < (E3 / 12) ? 0 : ancienneteCFC;
+  const pMob=Math.min(bonusAge,E11*salMensuel);
+  let redSenior=0;
+  const af=Math.floor(age);
+  if(af===61)redSenior=E17; else if(af===62)redSenior=E18; else if(af===63)redSenior=E19; else if(age>=64)redSenior=E20;
 
-  // Mobilité
-  const coefMobilite = anciennete < E12
-    ? E4 * anciennete
-    : E14 * E13 + E15 * Math.max(anciennete - E13, 0);
-  const indemniteMobilite = salMensuel * coefMobilite;
-
-  // BonusAge (cadres)
-  let bonusAge = indemniteMobilite;
-  if (statut === 'Cadre' && age >= 50 && age < 55 && anciennete >= E6) {
-    bonusAge = Math.max(indemniteMobilite * (1 + E7), E9 * salMensuel);
-  } else if (statut === 'Cadre' && age >= 55 && age < 60 && anciennete >= E6) {
-    bonusAge = Math.max(indemniteMobilite * (1 + E8), E10 * salMensuel);
-  }
-
-  const plafondMobilite_B15 = Math.min(bonusAge, E11 * salMensuel);
-
-  // Réduction senior
-  let reductionSenior = 0;
-  const ageFloor = Math.floor(age);
-  if (ageFloor === 61) reductionSenior = E17;
-  else if (ageFloor === 62) reductionSenior = E18;
-  else if (ageFloor === 63) reductionSenior = E19;
-  else if (age >= 64) reductionSenior = E20;
-
-  let resultatMobilite = plafondMobilite_B15;
-  if (statut === 'Cadre' && E16 === "Oui" && age >= 61) {
-    resultatMobilite = Math.max(plafondMobilite_B15 * (1 - reductionSenior), indemniteCFC);
-  }
+  let resMob=pMob;
+  if(statut==='Cadre'&&E16==="Oui"&&age>=61) resMob=Math.max(pMob*(1-redSenior),indemniteCFC);
 
   let B15;
-  if (forcerILL === 'Oui (défaut)') {
-    B15 = indemniteCFC;
-  } else if (dispositif === 'CFC') {
-    B15 = indemniteCFC;
-  } else {
-    B15 = resultatMobilite;
-  }
+  if(forcerILL==='Oui (défaut)'||dispositif==='CFC') B15=indemniteCFC;
+  else B15=resMob;
 
-  // B16: Supra-légale
-  const B16 = dispositif === 'CFC' ? 0 : salMensuel * Math.min(E23 === 999 ? Infinity : E23, E22 * anciennete);
-  const B16safe = isFinite(B16) ? B16 : salMensuel * E22 * anciennete;
+  const B16raw=salMensuel*Math.min(E23===999?Infinity:E23,E22*anciennete);
+  const B16=dispositif==='CFC'?0:(isFinite(B16raw)?B16raw:salMensuel*E22*anciennete);
+  const B17=B15+B16;
 
-  // B17: Total avant plafond
-  const B17 = B15 + B16safe;
+  const pCFC=Math.min(E30===999?B17:E30*salMensuel,E31===999?B17:E31);
+  const pMobB18=Math.min(E24*salMensuel,E25);
+  const B18=dispositif==='CFC'?Math.max(indemniteCFC,Math.min(B17,pCFC)):Math.max(B15,Math.min(B17,pMobB18));
 
-  // B18: Total avec plafond (LET formula)
-  const plafondCFC_val = Math.min(
-    E30 === 999 ? B17 : E30 * salMensuel,
-    E31 === 999 ? B17 : E31
-  );
-  const plafondMobilite_B18 = Math.min(E24 * salMensuel, E25);
+  const B19=B18<=B17?'Oui':'Non';
+  const B20=B18/salMensuel;
+  const B21=dispositif==='CFC'?E33:(age<50?E28:E29);
+  const B22=salMensuel*B21;
+  const B24=dispositif==='CFC'?E32:(age<50?E26:E27);
+  const B25=addMonths(refDate,B24);
+  const B26=B22*B24, B27=B26+B18, B28=B27/B24;
+  const B29=B28-salMensuel, B30=B27/salMensuel;
+  const B33=B18-(B18>=10*E21?0:Math.min(B18,2*E21));
+  const B34=B18>=10*E21?B18:B18-Math.min(B18,Math.min(B15,B18-B33));
 
-  let B18;
-  if (dispositif === 'CFC') {
-    B18 = Math.max(indemniteCFC, Math.min(B17, plafondCFC_val));
-  } else {
-    B18 = Math.max(B15, Math.min(B17, plafondMobilite_B18));
-  }
-
-  // B19
-  const B19 = B18 <= B17 ? 'Oui' : 'Non';
-
-  // B20
-  const B20 = B18 / salMensuel;
-
-  // B21: Taux rémunération
-  const B21 = dispositif === 'CFC' ? E33 : (age < 50 ? E28 : E29);
-
-  // B22
-  const B22 = salMensuel * B21;
-
-  // B23: Durée préavis
-  let B23 = 0;
-  if (E34 !== 999) {
-    B23 = Math.round(salMensuel * E34 / B22 * 10) / 10; // approximation
-  }
-
-  // B24: Durée max dispositif
-  let B24;
-  if (dispositif === 'CFC') {
-    B24 = E32;
-  } else {
-    B24 = age < 50 ? E26 : E27;
-  }
-
-  // B25: Date sortie
-  const B25 = addMonths(refDate, B24);
-
-  // B26: Rémunération totale (approximation - B23 impacts si préavis)
-  const B26 = B22 * B24; // simplification sans préavis
-
-  // B27
-  const B27 = B26 + B18;
-
-  // B28
-  const B28 = B27 / B24;
-
-  // B29
-  const B29 = B28 - salMensuel;
-
-  // B30
-  const B30 = B27 / salMensuel;
-
-  // B33: Part soumise URSSAF
-  const B33 = B18 - (B18 >= 10 * E21 ? 0 : Math.min(B18, 2 * E21));
-
-  // B34: Part soumise CSG/CRDS
-  const B34 = B18 >= 10 * E21 ? B18 : B18 - Math.min(B18, Math.min(B15, B18 - B33));
-
-  // ── Display ──────────────────────────────────────────────────────────────
-  setEl('res_B15', fmt(B15));
-  setEl('res_B16', fmt(B16safe));
-  setEl('res_B17', fmt(B17));
-  setEl('res_B18', fmt(B18));
-  setEl('res_B19', `<span class="status-badge ${B19==='Oui'?'badge-warn':'badge-ok'}">${B19}</span>`);
-  setEl('res_B20', fmtN(B20, 2) + ' mois');
-  setEl('res_B21', fmtPct(B21));
-  setEl('res_B22', fmt(B22));
-  setEl('res_B24', fmtN(B24, 0) + ' mois');
-  setEl('res_B25', fmtDate(B25));
-  setEl('res_B26', fmt(B26));
-  setEl('res_B27', fmt(B27));
-  setEl('res_B28', fmt(B28));
-  const sign = B29 >= 0 ? '+' : '';
-  setEl('res_B29', `<span class="${B29 < 0 ? 'warn' : ''}">${sign}${fmt(B29)}</span>`);
-  setEl('res_B30', fmtN(B30, 2) + ' mois');
-  setEl('res_B33', fmt(Math.max(0, B33)));
-  setEl('res_B34', fmt(Math.max(0, B34)));
+  setEl('res_B15',fmt(B15)); setEl('res_B16',fmt(B16)); setEl('res_B17',fmt(B17));
+  setEl('res_B18',fmt(B18));
+  setEl('res_B19',`<span class="badge ${B19==='Oui'?'badge-oui':'badge-non'}">${B19}</span>`);
+  setEl('res_B20',fmtN(B20,2)+' mois');
+  setEl('res_B21',fmtPct(B21)); setEl('res_B22',fmt(B22));
+  setEl('res_B24',fmtN(B24,0)+' mois'); setEl('res_B25',fmtDate(B25));
+  setEl('res_B26',fmt(B26)); setEl('res_B27',fmt(B27)); setEl('res_B28',fmt(B28));
+  const sign=B29>=0?'+':'';
+  setEl('res_B29',`<span class="${B29<0?'warn':''}">${sign}${fmt(B29)}</span>`);
+  setEl('res_B30',fmtN(B30,2)+' mois');
+  setEl('res_B33',fmt(Math.max(0,B33))); setEl('res_B34',fmt(Math.max(0,B34)));
 }
 
 function clearResults() {
-  const ids = ['res_B15','res_B16','res_B17','res_B18','res_B19','res_B20',
-    'res_B21','res_B22','res_B24','res_B25','res_B26','res_B27',
-    'res_B28','res_B29','res_B30','res_B33','res_B34'];
-  ids.forEach(id => setEl(id, '—'));
-  setEl('disp_age', '—');
-  setEl('disp_anciennete', '—');
-  setEl('disp_salaire_mensuel', '—');
+  ['res_B15','res_B16','res_B17','res_B18','res_B19','res_B20',
+   'res_B21','res_B22','res_B24','res_B25','res_B26','res_B27',
+   'res_B28','res_B29','res_B30','res_B33','res_B34',
+   'disp_age','disp_anciennete','disp_salaire_mensuel'
+  ].forEach(id=>setEl(id,'—'));
 }
 
-// ─── Init ────────────────────────────────────────────────────────────────
 window._onParamsReady = () => {
-  // Restore session values
-  const fields = ['B4','B5','B6','B8','B10','B12'];
-  fields.forEach(id => {
-    const saved = sessionStorage.getItem('sim_' + id);
-    if (saved) {
-      const el = document.getElementById(id);
-      if (el) el.value = saved;
-    }
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', () => sessionStorage.setItem('sim_' + id, el.value));
-      el.addEventListener('input', () => sessionStorage.setItem('sim_' + id, el.value));
+  const fields=['B4','B5','B6','B8','B10','B12'];
+  fields.forEach(id=>{
+    const saved=sessionStorage.getItem('sim_'+id);
+    if(saved){const el=document.getElementById(id);if(el)el.value=saved;}
+    const el=document.getElementById(id);
+    if(el){
+      el.addEventListener('change',()=>sessionStorage.setItem('sim_'+id,el.value));
+      el.addEventListener('input',()=>sessionStorage.setItem('sim_'+id,el.value));
     }
   });
   calculate();
 };
 
-// Si Firebase n'est pas configuré, lancer quand même
-setTimeout(() => {
-  if (!window._paramsLoaded) {
-    window._paramsLoaded = true;
-    if (typeof window._onParamsReady === 'function') window._onParamsReady();
-  }
-}, 2000);
+setTimeout(()=>{if(!window._paramsLoaded){window._paramsLoaded=true;if(window._onParamsReady)window._onParamsReady();}},2000);
 </script>
 </body>
 </html>
