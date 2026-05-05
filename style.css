@@ -261,12 +261,24 @@ select:focus{
   color:rgba(255,255,255,.38);
 }
 
+.footer-link {
+  color:rgba(255,255,255,.38);
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.footer-link:hover {
+  opacity: 0.8;
+}
+
 /* SIMULATION — SPECIFIQUES ========================================================== */
 
 body.simulation .main{ max-width:860px; }
 
 body.simulation{
   --value-col: clamp(140px, 38vw, 210px);
+  --input-col: clamp(140px, 46vw, 200px);
 }
 
 .notice{
@@ -283,37 +295,15 @@ body.simulation{
 
 .form-grid{
   display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px 16px;
   padding:16px 20px 18px;
 }
 
-.form-grid .field{
+.field{
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-}
-
-.form-grid .field-label{
-  flex:1;
-  font-size:.78rem;
-  font-weight:600;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-
-.form-grid .field input,
-.form-grid .field select{
-  width:var(--value-col);
-  min-width:140px;
-  max-width:220px;
-  text-align-last:right;
-}
-
-.form-grid .field.full{
-  grid-column:span 1;
+  flex-direction:column;
+  gap:4px;
 }
 
 .field.full{ grid-column:span 2; }
@@ -386,10 +376,9 @@ body.simulation{
 }
 
 .status-bar{
-  min-width:240px;
-  padding:6px 14px;
+  padding:9px 9px;
   font-family:'Source Code Pro', monospace;
-  font-size:.78rem;
+  font-size:.84rem;
   text-align:center;
   border-radius:3px;
   background:rgba(255,255,255,.06);
@@ -440,7 +429,7 @@ body.simulation{
 .param-row,
 .security-row{
   display:grid;
-  grid-template-columns:100px 1fr 180px 1fr;
+  grid-template-columns:30px 1fr 140px 1fr;
   gap:16px;
   align-items:center;
   padding:10px 20px;
@@ -543,20 +532,61 @@ body.simulation{
 }
 
 /* RESPONSIVE (commun + objectifs UX) ========================================================== */
-
 @media (max-width:600px){
-  .header-top{ padding:12px 16px; gap:14px; }
-  .logo-wrap img{ height:48px; }
-  .header-titles h1{ font-size:1.1rem; }
-  .main{ padding:20px 12px 60px; }
 
-  body.simulation .form-grid{grid-template-columns:1fr;}
-  body.simulation .field{flex-direction:row;}
-  body.simulation .field.full{grid-column:span 1;}
+  .header-top{
+    padding:12px 16px;
+    gap:14px;
+  }
+
+  .logo-wrap img{
+    height:48px;
+  }
+
+  .header-titles h1{
+    font-size:1.1rem;
+  }
+
+  .main{
+    padding:20px 12px 60px;
+  }
+
+  body.simulation .form-grid{
+    grid-template-columns:1fr;
+    gap:10px;
+    padding:14px 16px 16px;
+  }
+
+  body.simulation .field{
+    display:grid;
+    grid-template-columns: 1fr var(--input-col);
+    align-items:center;
+    column-gap:12px;
+    row-gap:4px;
+  }
+
+  body.simulation .field.full{
+    grid-column:auto;
+  }
+
+  body.simulation .field-label{
+    margin:0;
+  }
+
+  body.simulation .field input,
+  body.simulation .field select{
+    justify-self:end;
+    text-align:right;
+  }
+
+  body.simulation .field input::placeholder{
+    text-align:right;
+    color:var(--muted);
+  }
 
   body.simulation .computed-row,
   body.simulation .result-row{
-    grid-template-columns:1fr var(--value-col);
+    grid-template-columns: 1fr var(--value-col);
     padding:10px 16px;
   }
 
@@ -566,16 +596,12 @@ body.simulation{
   }
 
   body.simulation .computed-label,
-  body.simulation .result-label{ font-size:.82rem; }
+  body.simulation .result-label{
+    font-size:.82rem;
+  }
+
   body.simulation .computed-value,
-  body.simulation .result-value{ font-size:.88rem; }
-}
-
-input[type="date"]{
-  position:relative;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator{
-  opacity:1;
-  cursor:pointer;
+  body.simulation .result-value{
+    font-size:.88rem;
+  }
 }
