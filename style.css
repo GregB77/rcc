@@ -522,7 +522,6 @@ body.simulation{
 }
 
 /* RESPONSIVE (commun + objectifs UX) ========================================================== */
-
 @media (max-width:600px){
   /* header/main densité */
   .header-top{ padding:12px 16px; gap:14px; }
@@ -580,11 +579,16 @@ body.simulation{
   body.simulation .result-value{ font-size:.88rem; }
 }
 
-@media (max-width:700px){
-  .table-header{ display:none; }
-  .param-row,
-  .security-row{ grid-template-columns:80px 1fr; }
-  .param-comment,
-  .security-comment{ display:none; }
-  .status-bar{ min-width:160px; font-size:.72rem; }
+  body.simulation .field select:not([value=""]),
+  body.simulation .field input:not(:placeholder-shown){
+    text-align: right;
+  }
+
+  body.simulation .field input[type="date"]:valid{
+    text-align: right;
+  }
+
+  body.simulation #B10:not(:placeholder-shown){
+    text-align: right;
+  }
 }
