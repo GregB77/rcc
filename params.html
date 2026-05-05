@@ -28,9 +28,7 @@
   window._db = db;
   window._dbRef = (path) => ref(db, path);
   window._dbSet = set;
-  window._dbOnValue = onValue;
 
-  // Load params on startup
   onValue(ref(db, 'params'), (snapshot) => {
     const data = snapshot.val();
     if (data) {
@@ -41,141 +39,159 @@
     }
     setStatus('Paramètres chargés depuis Firebase.', 'ok');
   }, (err) => {
-    setStatus('⚠️ Impossible de se connecter à Firebase. Vérifiez la configuration.', 'error');
+    setStatus('⚠ Impossible de se connecter à Firebase.', 'error');
     console.error(err);
   });
 </script>
 
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #181c25;
-    --surface2: #1f2431;
-    --border: #2a3040;
-    --text: #e8eaf0;
-    --muted: #7a8099;
-    --accent: #f0a04b;
-    --green: #4caf87;
-    --red: #e05c5c;
-    --blue: #5b9cf6;
-    --input-bg: #141820;
-    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --navy:    #1a3a6b;
+    --blue:    #3a7abf;
+    --sky:     #5b9fd4;
+    --red:     #c8102e;
+    --white:   #ffffff;
+    --offwhite:#f4f7fb;
+    --light:   #e8eef6;
+    --border:  #c5d5e8;
+    --text:    #1a2940;
+    --muted:   #5a6e87;
+    --input-bg:#eaf2fb;
+    --shadow:  0 2px 12px rgba(26,58,107,0.13);
+    --shadow-lg: 0 6px 28px rgba(26,58,107,0.16);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--offwhite);
     color: var(--text);
     min-height: 100vh;
   }
 
+  /* HEADER */
   .page-header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 28px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
+    background: var(--navy);
     position: sticky;
     top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow);
+    z-index: 50;
+    box-shadow: var(--shadow-lg);
   }
 
-  .header-left h1 {
-    font-family: 'DM Serif Display', serif;
-    font-weight: 400;
-    font-size: 1.5rem;
-    color: var(--text);
-  }
-
-  .header-left h1 em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .header-left p {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  .header-actions {
+  .header-top {
     display: flex;
     align-items: center;
-    gap: 12px;
+    padding: 14px 36px;
+    gap: 24px;
+    border-bottom: 3px solid var(--red);
     flex-wrap: wrap;
   }
+
+  .logo-wrap img {
+    height: 62px;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 50px;
+    background: rgba(255,255,255,0.18);
+    flex-shrink: 0;
+  }
+
+  .header-titles { flex: 1; min-width: 200px; }
+
+  .header-titles h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  .header-titles p {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  .header-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
   .status-bar {
     font-size: 0.78rem;
-    font-family: 'DM Mono', monospace;
+    font-family: 'Source Code Pro', monospace;
     padding: 6px 14px;
-    border-radius: 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--muted);
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
     transition: all 0.3s;
-    min-width: 260px;
+    min-width: 240px;
     text-align: center;
   }
-
-  .status-bar.ok { color: var(--green); border-color: var(--green); background: rgba(76,175,135,0.08); }
-  .status-bar.error { color: var(--red); border-color: var(--red); background: rgba(224,92,92,0.08); }
-  .status-bar.saving { color: var(--accent); border-color: var(--accent); background: rgba(240,160,75,0.08); }
+  .status-bar.ok { color: #7dd4a8; border-color: rgba(125,212,168,0.4); background: rgba(125,212,168,0.08); }
+  .status-bar.error { color: #f09090; border-color: rgba(240,144,144,0.4); background: rgba(240,144,144,0.08); }
+  .status-bar.saving { color: #f0c060; border-color: rgba(240,192,96,0.4); background: rgba(240,192,96,0.08); }
 
   .btn {
-    padding: 9px 22px;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    border-radius: 4px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.84rem;
     font-weight: 600;
     cursor: pointer;
     border: none;
     transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
   }
 
-  .btn-primary {
-    background: var(--accent);
-    color: #0f1117;
-  }
-  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary { background: var(--red); color: var(--white); }
+  .btn-primary:hover { background: #a50d25; }
 
   .btn-ghost {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: rgba(255,255,255,0.8);
   }
-  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.16); color: var(--white); }
 
-  .main {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 36px 24px 80px;
+  .header-stripe {
+    height: 4px;
+    background: linear-gradient(to right, var(--red) 33.33%, var(--white) 33.33%, var(--white) 66.66%, var(--sky) 66.66%);
   }
+
+  /* MAIN */
+  .main { max-width: 980px; margin: 0 auto; padding: 36px 24px 80px; }
 
   .info-box {
-    background: rgba(91,156,246,0.08);
-    border: 1px solid rgba(91,156,246,0.25);
-    border-radius: 8px;
-    padding: 14px 18px;
+    background: #eef5fb;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 4px;
+    padding: 12px 16px;
     font-size: 0.82rem;
-    color: #8ab4f8;
+    color: var(--muted);
     margin-bottom: 28px;
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
+  /* TABLE */
   .params-table {
-    background: var(--surface);
+    background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 6px;
     overflow: hidden;
     box-shadow: var(--shadow);
     margin-bottom: 28px;
@@ -183,506 +199,429 @@
 
   .table-header {
     display: grid;
-    grid-template-columns: 120px 1fr 160px 1fr;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
-    font-size: 0.72rem;
+    grid-template-columns: 100px 1fr 180px 1fr;
+    background: var(--navy);
+    padding: 9px 20px;
+    font-size: 0.71rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: rgba(255,255,255,0.55);
     gap: 16px;
   }
 
   .group-header {
-    background: #1a1f2c;
-    border-bottom: 1px solid var(--border);
-    padding: 8px 20px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--accent);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    background: var(--light);
+    border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    padding: 8px 20px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+
+  .group-header-accent {
+    background: var(--navy);
+    color: rgba(255,255,255,0.85);
+    border-color: transparent;
   }
 
   .group-header::before {
     content: '';
-    width: 3px;
-    height: 14px;
-    background: var(--accent);
-    border-radius: 2px;
     display: inline-block;
+    width: 3px;
+    height: 12px;
+    background: var(--red);
+    border-radius: 2px;
+    flex-shrink: 0;
   }
+  .group-header-accent::before { background: rgba(255,255,255,0.5); }
 
   .param-row {
     display: grid;
-    grid-template-columns: 120px 1fr 160px 1fr;
+    grid-template-columns: 100px 1fr 180px 1fr;
     align-items: center;
     padding: 10px 20px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--light);
     gap: 16px;
     transition: background 0.1s;
   }
-
   .param-row:last-child { border-bottom: none; }
-  .param-row:hover { background: rgba(255,255,255,0.02); }
+  .param-row:hover { background: var(--offwhite); }
 
   .param-key {
-    font-family: 'DM Mono', monospace;
+    font-family: 'Source Code Pro', monospace;
     font-size: 0.8rem;
     color: var(--blue);
     font-weight: 500;
   }
 
-  .param-label {
-    font-size: 0.85rem;
-    color: var(--text);
-    line-height: 1.4;
-  }
-
-  .param-input-wrap {
-    position: relative;
-  }
+  .param-label { font-size: 0.87rem; color: var(--text); line-height: 1.4; }
 
   .param-input {
     width: 100%;
     padding: 7px 12px;
     background: var(--input-bg);
     border: 1.5px solid var(--border);
-    border-radius: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--text);
+    border-radius: 4px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.84rem;
+    color: var(--navy);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
   }
-
   .param-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(240,160,75,0.12);
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(58,122,191,0.14);
   }
 
   select.param-input {
     cursor: pointer;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8099' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a6e87' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     padding-right: 28px;
   }
 
-  .param-comment {
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.4;
-    font-style: italic;
-  }
+  .param-comment { font-size: 0.78rem; color: var(--muted); line-height: 1.4; font-style: italic; }
 
-  .save-confirm {
+  /* Security row */
+  .security-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 180px 1fr;
+    align-items: center;
+    padding: 14px 20px;
+    gap: 16px;
+    background: #fdf4f5;
+  }
+  .security-key { font-family: 'Source Code Pro', monospace; font-size: 0.8rem; color: var(--red); font-weight: 600; }
+  .security-label { font-size: 0.87rem; color: var(--text); font-weight: 500; }
+  .security-comment { font-size: 0.78rem; color: var(--muted); line-height: 1.4; font-style: italic; }
+
+  /* Toast */
+  .save-toast {
     position: fixed;
     bottom: 32px;
     right: 32px;
-    background: var(--green);
-    color: #0a1a12;
+    background: var(--navy);
+    border: 1px solid var(--blue);
+    border-left: 4px solid #7dd4a8;
+    color: #7dd4a8;
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: 4px;
+    font-size: 0.88rem;
     font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 20px rgba(76,175,135,0.4);
+    box-shadow: var(--shadow-lg);
     transform: translateY(80px);
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
     pointer-events: none;
     z-index: 200;
   }
+  .save-toast.show { transform: translateY(0); opacity: 1; }
 
-  .save-confirm.show {
-    transform: translateY(0);
-    opacity: 1;
+  .page-footer {
+    background: var(--navy);
+    border-top: 3px solid var(--red);
+    padding: 14px 36px;
+    text-align: center;
+    font-size: 0.74rem;
+    color: rgba(255,255,255,0.38);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
   @media (max-width: 700px) {
-    .page-header { padding: 20px 16px; }
-    .main { padding: 24px 12px 60px; }
-    .table-header, .param-row {
-      grid-template-columns: 80px 1fr;
-      grid-template-rows: auto auto;
-    }
-    .param-comment, .table-header > *:nth-child(4), .table-header > *:nth-child(3) { display: none; }
-    .param-input-wrap { grid-column: 2; }
+    .header-top { padding: 12px 16px; }
+    .logo-wrap img { height: 48px; }
+    .header-titles h1 { font-size: 1.1rem; }
+    .main { padding: 20px 12px 60px; }
+    .table-header { display: none; }
+    .param-row, .security-row { grid-template-columns: 80px 1fr; }
+    .param-comment, .security-comment { display: none; }
+    .status-bar { min-width: 160px; font-size: 0.72rem; }
   }
 </style>
 </head>
 <body>
 
 <header class="page-header">
-  <div class="header-left">
-    <h1>⚙ Paramètres <em>RCC</em></h1>
-    <p>Valeurs enregistrées dans Firebase · Utilisées par tous les simulateurs</p>
+  <div class="header-top">
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,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" alt="CFE-CGC Métallurgie">
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-titles">
+      <h1>Paramètres RCC</h1>
+      <p>Administration · Métallurgie</p>
+    </div>
+    <div class="header-actions">
+      <div class="status-bar" id="statusBar">Connexion à Firebase…</div>
+      <a href="simulation.html" class="btn btn-ghost">← Simulateur</a>
+      <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button>
+    </div>
   </div>
-  <div class="header-actions">
-    <div class="status-bar" id="statusBar">Connexion à Firebase…</div>
-    <a href="simulation.html" class="btn btn-ghost">← Simulateur</a>
-    <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button>
-  </div>
+  <div class="header-stripe"></div>
 </header>
 
 <main class="main">
   <div class="info-box">
-    ⚠️ Ces paramètres sont partagés entre tous les utilisateurs du simulateur. Toute modification est immédiatement répercutée sur les calculs. Modifiez uniquement si vous êtes administrateur.
+    ⚠ Ces paramètres sont partagés entre tous les utilisateurs du simulateur. Toute modification est immédiatement répercutée sur les calculs. Modifiez uniquement si vous êtes administrateur et saisissez le code de sécurité avant d'enregistrer.
   </div>
 
-  <div class="params-table" id="paramsTable">
+  <div class="params-table">
     <div class="table-header">
-      <div>Paramètre</div>
-      <div>Libellé</div>
-      <div>Valeur</div>
-      <div>Commentaire</div>
+      <div>Paramètre</div><div>Libellé</div><div>Valeur</div><div>Commentaire</div>
     </div>
 
-    <!-- Groupe Général -->
+    <!-- Général -->
     <div class="group-header">Général</div>
-
     <div class="param-row">
       <div class="param-key">B3</div>
       <div class="param-label">Date de référence (notification / rupture)</div>
-      <div class="param-input-wrap">
-        <input type="date" id="param_B3" class="param-input" value="2027-01-01">
-      </div>
+      <div><input type="date" id="param_B3" class="param-input" value="2027-01-01"></div>
       <div class="param-comment">Date fixe utilisée pour le calcul de l'âge et de l'ancienneté</div>
     </div>
 
-    <!-- Groupe ILL -->
+    <!-- ILL -->
     <div class="group-header">ILL – Indemnité Légale de Licenciement</div>
-
     <div class="param-row">
       <div class="param-key">E3</div>
       <div class="param-label">Ancienneté minimale (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E3" class="param-input" value="8" step="1" min="0">
-      </div>
-      <div class="param-comment">Droit à indemnité si ancienneté ≥ 8 mois (règle légale + CCN)</div>
+      <div><input type="number" id="param_E3" class="param-input" value="8" step="1" min="0"></div>
+      <div class="param-comment">Droit à indemnité si ancienneté ≥ 8 mois</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E4</div>
       <div class="param-label">Taux 0–10 ans (mois/an)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E4" class="param-input" value="0.25" step="0.01" min="0">
-      </div>
+      <div><input type="number" id="param_E4" class="param-input" value="0.25" step="0.01" min="0"></div>
       <div class="param-comment">¼ mois par année sur les 10 premières années</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E5</div>
-      <div class="param-label">Taux > 10 ans (mois/an)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E5" class="param-input" value="0.3333" step="0.0001" min="0">
-      </div>
+      <div class="param-label">Taux &gt; 10 ans (mois/an)</div>
+      <div><input type="number" id="param_E5" class="param-input" value="0.3333" step="0.0001" min="0"></div>
       <div class="param-comment">⅓ mois par année au-delà de 10 ans</div>
     </div>
 
-    <!-- Groupe ILC -->
+    <!-- ILC -->
     <div class="group-header">ILC – Indemnité de Licenciement Cadres</div>
-
     <div class="param-row">
       <div class="param-key">E6</div>
       <div class="param-label">Ancienneté mini requise (ans)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E6" class="param-input" value="5" step="1" min="0">
-      </div>
+      <div><input type="number" id="param_E6" class="param-input" value="5" step="1" min="0"></div>
       <div class="param-comment">Condition pour majorations cadres 50–60 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E7</div>
-      <div class="param-label">Majoration âge 50–55 (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E7" class="param-input" value="0.2" step="0.01" min="0">
-      </div>
-      <div class="param-comment">Majoration +20% (cadres) si 50 ≤ âge < 55 et ancienneté ≥ 5 ans</div>
+      <div class="param-label">Majoration âge 50–55</div>
+      <div><input type="number" id="param_E7" class="param-input" value="0.2" step="0.01" min="0"></div>
+      <div class="param-comment">Majoration +20% (cadres) si 50 ≤ âge &lt; 55 et anc. ≥ 5 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E8</div>
-      <div class="param-label">Majoration âge 55–60 (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E8" class="param-input" value="0.3" step="0.01" min="0">
-      </div>
-      <div class="param-comment">Majoration +30% (cadres) si 55 ≤ âge < 60 et ancienneté ≥ 5 ans</div>
+      <div class="param-label">Majoration âge 55–60</div>
+      <div><input type="number" id="param_E8" class="param-input" value="0.3" step="0.01" min="0"></div>
+      <div class="param-comment">Majoration +30% (cadres) si 55 ≤ âge &lt; 60 et anc. ≥ 5 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E9</div>
       <div class="param-label">Plancher 50–55 (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E9" class="param-input" value="3" step="1" min="0">
-      </div>
+      <div><input type="number" id="param_E9" class="param-input" value="3" step="1" min="0"></div>
       <div class="param-comment">Plancher : au moins 3 mois (cadres 50–55)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E10</div>
       <div class="param-label">Plancher 55–60 (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E10" class="param-input" value="6" step="1" min="0">
-      </div>
+      <div><input type="number" id="param_E10" class="param-input" value="6" step="1" min="0"></div>
       <div class="param-comment">Plancher : au moins 6 mois (cadres 55–60)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E11</div>
       <div class="param-label">Plafond ILC (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E11" class="param-input" value="18" step="1" min="0">
-      </div>
+      <div><input type="number" id="param_E11" class="param-input" value="18" step="1" min="0"></div>
       <div class="param-comment">Plafond : 18 mois de salaire de référence (cadres)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E12</div>
       <div class="param-label">Seuil ancienneté régime cadres (ans)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E12" class="param-input" value="8" step="1" min="0">
-      </div>
-      <div class="param-comment">Art. 75.3.1.2 : régime renforcé à partir de 8 ans (F,G,H,I)</div>
+      <div><input type="number" id="param_E12" class="param-input" value="8" step="1" min="0"></div>
+      <div class="param-comment">Régime renforcé à partir de 8 ans (F,G,H,I)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E13</div>
       <div class="param-label">Seuil changement coeff (ans)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E13" class="param-input" value="7" step="1" min="0">
-      </div>
-      <div class="param-comment">Art. 75.3.1.2 : changement de coeff à 7 ans (F,G,H,I)</div>
+      <div><input type="number" id="param_E13" class="param-input" value="7" step="1" min="0"></div>
+      <div class="param-comment">Changement de coeff à 7 ans (F,G,H,I)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E14</div>
       <div class="param-label">Coeff 1/5 (jusqu'à 7 ans)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E14" class="param-input" value="0.2" step="0.01" min="0">
-      </div>
-      <div class="param-comment">Art. 75.3.1.2 : 1/5 mois par année jusqu'à 7 ans</div>
+      <div><input type="number" id="param_E14" class="param-input" value="0.2" step="0.01" min="0"></div>
+      <div class="param-comment">1/5 mois par année jusqu'à 7 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E15</div>
       <div class="param-label">Coeff 3/5 (au-delà de 7 ans)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E15" class="param-input" value="0.6" step="0.01" min="0">
-      </div>
-      <div class="param-comment">Art. 75.3.1.2 : 3/5 mois par année au-delà de 7 ans</div>
+      <div><input type="number" id="param_E15" class="param-input" value="0.6" step="0.01" min="0"></div>
+      <div class="param-comment">3/5 mois par année au-delà de 7 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E16</div>
       <div class="param-label">Minoration applicable ?</div>
-      <div class="param-input-wrap">
+      <div>
         <select id="param_E16" class="param-input">
           <option value="Oui">Oui</option>
           <option value="Non">Non</option>
         </select>
       </div>
-      <div class="param-comment">Non applicable si pas taux plein ou retraite complémentaire avec abattement</div>
+      <div class="param-comment">Non applicable si pas taux plein ou retraite avec abattement</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E17</div>
       <div class="param-label">Minoration 61 ans</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E17" class="param-input" value="0.05" step="0.01" min="0" max="1">
-      </div>
+      <div><input type="number" id="param_E17" class="param-input" value="0.05" step="0.01" min="0" max="1"></div>
       <div class="param-comment">Décote : -5% à 61 ans (cadres)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E18</div>
       <div class="param-label">Minoration 62 ans</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E18" class="param-input" value="0.1" step="0.01" min="0" max="1">
-      </div>
+      <div><input type="number" id="param_E18" class="param-input" value="0.1" step="0.01" min="0" max="1"></div>
       <div class="param-comment">Décote : -10% à 62 ans (cadres)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E19</div>
       <div class="param-label">Minoration 63 ans</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E19" class="param-input" value="0.2" step="0.01" min="0" max="1">
-      </div>
+      <div><input type="number" id="param_E19" class="param-input" value="0.2" step="0.01" min="0" max="1"></div>
       <div class="param-comment">Décote : -20% à 63 ans (cadres)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E20</div>
       <div class="param-label">Minoration 64+ ans</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E20" class="param-input" value="0.4" step="0.01" min="0" max="1">
-      </div>
+      <div><input type="number" id="param_E20" class="param-input" value="0.4" step="0.01" min="0" max="1"></div>
       <div class="param-comment">Décote : -40% à 64 ans et plus (cadres)</div>
     </div>
 
-    <!-- Groupe PASS -->
+    <!-- PASS -->
     <div class="group-header">PASS – Plafond Annuel Sécurité Sociale</div>
-
     <div class="param-row">
       <div class="param-key">E21</div>
       <div class="param-label">PASS annuel (€)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E21" class="param-input" value="48060" step="1" min="0">
-      </div>
-      <div class="param-comment">Plafond Annuel Sécurité Sociale 2026</div>
+      <div><input type="number" id="param_E21" class="param-input" value="48060" step="1" min="0"></div>
+      <div class="param-comment">Plafond Annuel Sécurité Sociale en vigueur</div>
     </div>
 
-    <!-- Groupe Mobilité -->
+    <!-- Mobilité -->
     <div class="group-header">Mobilité – Paramètres du dispositif mobilité</div>
-
     <div class="param-row">
       <div class="param-key">E22</div>
       <div class="param-label">Coefficient supra-légale (mois/an)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E22" class="param-input" value="0.8" step="0.1" min="0">
-      </div>
-      <div class="param-comment">Coefficient en mois de salaire par année d'ancienneté</div>
+      <div><input type="number" id="param_E22" class="param-input" value="0.8" step="0.1" min="0"></div>
+      <div class="param-comment">Mois de salaire par année d'ancienneté</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E23</div>
       <div class="param-label">Plafond supra-légale mobilité (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E23" class="param-input" value="999" step="1" min="0">
-      </div>
-      <div class="param-comment">Plafond en mois pour la supra (999 = pas de plafond)</div>
+      <div><input type="number" id="param_E23" class="param-input" value="999" step="1" min="0"></div>
+      <div class="param-comment">999 = pas de plafond</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E24</div>
       <div class="param-label">Plafond total RCC mobilité (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E24" class="param-input" value="18" step="1" min="0">
-      </div>
-      <div class="param-comment">Plafond exprimé en nombre de mois de salaire (999 = pas de plafond)</div>
+      <div><input type="number" id="param_E24" class="param-input" value="18" step="1" min="0"></div>
+      <div class="param-comment">Plafond en nombre de mois de salaire (999 = pas de plafond)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E25</div>
       <div class="param-label">Plafond total RCC mobilité (€)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E25" class="param-input" value="100000" step="1000" min="0">
-      </div>
-      <div class="param-comment">Plafond exprimé en euros (999 = pas de plafond)</div>
+      <div><input type="number" id="param_E25" class="param-input" value="100000" step="1000" min="0"></div>
+      <div class="param-comment">Plafond en euros (999 = pas de plafond)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E26</div>
-      <div class="param-label">Durée max < 50 ans (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E26" class="param-input" value="12" step="1" min="0">
-      </div>
-      <div class="param-comment">Durée maximale si dispositif mobilité et âge < 50 ans</div>
+      <div class="param-label">Durée max &lt; 50 ans (mois)</div>
+      <div><input type="number" id="param_E26" class="param-input" value="12" step="1" min="0"></div>
+      <div class="param-comment">Durée max si mobilité et âge &lt; 50 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E27</div>
       <div class="param-label">Durée max ≥ 50 ans (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E27" class="param-input" value="15" step="1" min="0">
-      </div>
-      <div class="param-comment">Durée maximale si dispositif mobilité et âge ≥ 50 ans</div>
+      <div><input type="number" id="param_E27" class="param-input" value="15" step="1" min="0"></div>
+      <div class="param-comment">Durée max si mobilité et âge ≥ 50 ans</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E28</div>
-      <div class="param-label">Taux rémunération < 50 ans</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E28" class="param-input" value="0.75" step="0.01" min="0" max="1">
-      </div>
-      <div class="param-comment">Rémunération : mobilité, âge < 50 ans (ex: 0.75 = 75%)</div>
+      <div class="param-label">Taux rémunération &lt; 50 ans</div>
+      <div><input type="number" id="param_E28" class="param-input" value="0.75" step="0.01" min="0" max="1"></div>
+      <div class="param-comment">Ex: 0.75 = 75% du salaire mensuel de référence</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E29</div>
       <div class="param-label">Taux rémunération ≥ 50 ans</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E29" class="param-input" value="0.8" step="0.01" min="0" max="1">
-      </div>
-      <div class="param-comment">Rémunération : mobilité, âge ≥ 50 ans (ex: 0.80 = 80%)</div>
+      <div><input type="number" id="param_E29" class="param-input" value="0.8" step="0.01" min="0" max="1"></div>
+      <div class="param-comment">Ex: 0.80 = 80% du salaire mensuel de référence</div>
     </div>
 
-    <!-- Groupe CFC -->
+    <!-- CFC -->
     <div class="group-header">CFC – Congé de Formation / Conversion</div>
-
     <div class="param-row">
       <div class="param-key">E30</div>
       <div class="param-label">Plafond total RCC CFC (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E30" class="param-input" value="999" step="1" min="0">
-      </div>
-      <div class="param-comment">Plafond exprimé en nombre de mois de salaire (999 = pas de plafond)</div>
+      <div><input type="number" id="param_E30" class="param-input" value="999" step="1" min="0"></div>
+      <div class="param-comment">Plafond en nombre de mois de salaire (999 = pas de plafond)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E31</div>
       <div class="param-label">Plafond total RCC CFC (€)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E31" class="param-input" value="999" step="1" min="0">
-      </div>
-      <div class="param-comment">Plafond exprimé en euros (999 = pas de plafond)</div>
+      <div><input type="number" id="param_E31" class="param-input" value="999" step="1" min="0"></div>
+      <div class="param-comment">Plafond en euros (999 = pas de plafond)</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E32</div>
       <div class="param-label">Durée max CFC (mois)</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E32" class="param-input" value="36" step="1" min="0">
-      </div>
+      <div><input type="number" id="param_E32" class="param-input" value="36" step="1" min="0"></div>
       <div class="param-comment">Durée maximale si dispositif CFC</div>
     </div>
-
     <div class="param-row">
       <div class="param-key">E33</div>
       <div class="param-label">Taux rémunération CFC</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E33" class="param-input" value="0.7" step="0.01" min="0" max="1">
-      </div>
-      <div class="param-comment">Rémunération CFC (ex: 0.70 = 70% du salaire mensuel de référence)</div>
+      <div><input type="number" id="param_E33" class="param-input" value="0.7" step="0.01" min="0" max="1"></div>
+      <div class="param-comment">Ex: 0.70 = 70% du salaire mensuel de référence</div>
     </div>
 
-    <!-- Groupe Préavis -->
+    <!-- Préavis -->
     <div class="group-header">Préavis</div>
-
     <div class="param-row">
       <div class="param-key">E34</div>
       <div class="param-label">Taux du préavis</div>
-      <div class="param-input-wrap">
-        <input type="number" id="param_E34" class="param-input" value="9.99" step="0.01" min="0">
-      </div>
-      <div class="param-comment">Taux du préavis (9.99 = Pas de préavis)</div>
+      <div><input type="number" id="param_E34" class="param-input" value="9.99" step="0.01" min="0"></div>
+      <div class="param-comment">9.99 = pas de préavis</div>
     </div>
 
-    <!-- Code de sécurité -->
-    <div class="group-header" style="background:#1a1220; color:#c084fc;">🔒 Accès</div>
-    <div class="param-row" style="background:#14101c;">
-      <div class="param-key" style="color:#c084fc;">Code</div>
-      <div class="param-label">Code de sécurité</div>
-      <div class="param-input-wrap">
-        <input type="password" id="securityCode" class="param-input" placeholder="••••••••" autocomplete="off">
-      </div>
-      <div class="param-comment">Requis pour enregistrer les modifications dans Firebase</div>
+    <!-- Sécurité -->
+    <div class="group-header group-header-accent">🔒 Code de sécurité</div>
+    <div class="security-row">
+      <div class="security-key">Code</div>
+      <div class="security-label">Code de sécurité requis pour enregistrer</div>
+      <div><input type="password" id="securityCode" class="param-input" placeholder="••••••••" autocomplete="off" style="border-color:#f5c0c0;"></div>
+      <div class="security-comment">Saisir le code avant de cliquer sur "Enregistrer". Sans code valide, aucune modification ne sera sauvegardée dans Firebase.</div>
     </div>
 
   </div>
 </main>
 
-<div class="save-confirm" id="saveConfirm">✓ Paramètres enregistrés</div>
+<footer class="page-footer">CFE-CGC Métallurgie · Paramètres RCC · Administration</footer>
+
+<div class="save-toast" id="saveToast">✓ Paramètres enregistrés dans Firebase</div>
 
 <script>
-function setStatus(msg, type = '') {
+function setStatus(msg, type='') {
   const el = document.getElementById('statusBar');
   el.textContent = msg;
   el.className = 'status-bar ' + type;
@@ -693,10 +632,12 @@ async function saveParams() {
   if (code !== 'CFE-CGC') {
     setStatus('❌ Code de sécurité incorrect.', 'error');
     document.getElementById('securityCode').focus();
+    document.getElementById('securityCode').style.borderColor = '#c8102e';
     return;
   }
+  document.getElementById('securityCode').style.borderColor = '';
 
-  setStatus('Enregistrement…', 'saving');
+  setStatus('Enregistrement en cours…', 'saving');
 
   const keys = ['B3','E3','E4','E5','E6','E7','E8','E9','E10','E11','E12','E13','E14','E15',
     'E16','E17','E18','E19','E20','E21','E22','E23','E24','E25','E26','E27',
@@ -711,26 +652,20 @@ async function saveParams() {
   });
 
   try {
-    if (!window._dbRef || !window._dbSet) {
-      throw new Error('Firebase non initialisé. Vérifiez la configuration.');
-    }
+    if (!window._dbRef || !window._dbSet) throw new Error('Firebase non initialisé.');
     await window._dbSet(window._dbRef('params'), params);
-    setStatus('✓ Enregistré à ' + new Date().toLocaleTimeString('fr-FR'), 'ok');
-    const toast = document.getElementById('saveConfirm');
+    setStatus('✓ Enregistré le ' + new Date().toLocaleString('fr-FR'), 'ok');
+    const toast = document.getElementById('saveToast');
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2800);
+    setTimeout(() => toast.classList.remove('show'), 3000);
   } catch (err) {
     setStatus('❌ Erreur : ' + err.message, 'error');
     console.error(err);
   }
 }
 
-// Keyboard shortcut
 document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-    e.preventDefault();
-    saveParams();
-  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); saveParams(); }
 });
 </script>
 </body>
