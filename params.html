@@ -36,9 +36,9 @@
         if (el) el.value = val;
       });
     }
-    setStatus('Paramètres chargés depuis Firebase.', 'ok');
+    setStatus('Paramètres chargés', 'ok');
   }, (err) => {
-    setStatus('⚠ Impossible de se connecter à Firebase.', 'error');
+    setStatus('⚠ Impossible de se connecter.', 'error');
     console.error(err);
   });
 </script>
@@ -55,17 +55,15 @@
       <p>Administration · Métallurgie</p>
     </div>
     <div class="header-actions">
-      <div class="status-bar" id="statusBar">Connexion à Firebase…</div>
+      <div class="status-bar" id="statusBar">Connexion…</div>
       <a href="simulation.html" class="btn btn-ghost">← Simulateur</a>
-      <button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button>
     </div>
   </div>
-  <div class="header-stripe"></div>
 </header>
 
 <main class="main">
   <div class="info-box">
-    ⚠ Ces paramètres sont partagés entre tous les utilisateurs du simulateur. Toute modification est immédiatement répercutée sur les calculs. Modifiez uniquement si vous êtes administrateur et saisissez le code de sécurité avant d'enregistrer.
+    ⚠ Ces paramètres sont partagés entre tous les utilisateurs du simulateur. Toute modification est immédiatement répercutée sur les calculs.
   </div>
 
   <div class="params-table">
@@ -303,7 +301,7 @@
       <div class="security-key">Code</div>
       <div class="security-label">Code de sécurité requis pour enregistrer</div>
       <div><input type="password" id="securityCode" class="param-input" placeholder="••••••••" autocomplete="off" style="border-color:#f5c0c0;"></div>
-      <div class="security-comment">Saisir le code avant de cliquer sur "Enregistrer". Sans code valide, aucune modification ne sera sauvegardée dans Firebase.</div>
+      <div class="security-comment"><button class="btn btn-primary" onclick="saveParams()">💾 Enregistrer</button></div>
     </div>
 
   </div>
@@ -323,7 +321,7 @@ function setStatus(msg, type='') {
 async function saveParams() {
   const code = document.getElementById('securityCode').value;
   if (code !== 'CFE-CGC') {
-    setStatus('❌ Code de sécurité incorrect.', 'error');
+    setStatus('❌ Code de sécurité incorrect', 'error');
     document.getElementById('securityCode').focus();
     document.getElementById('securityCode').style.borderColor = '#c8102e';
     return;
