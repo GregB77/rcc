@@ -1,5 +1,6 @@
 /* ==========================================================
    STYLE.CSS — THEME COMMUN + SPECIFIQUES (SIMULATION + PARAMS)
+   Objectif : desktop stable + mobile Android OK (dates natives)
    ========================================================== */
 
 /* ==========================================================
@@ -177,7 +178,10 @@ select{
 
   outline:none;
   transition:border-color .2s, box-shadow .2s;
+
+  /* Important : beau rendu custom… MAIS on gérera les dates sur mobile plus bas */
   -webkit-appearance:none;
+  appearance:none;
 }
 
 input:focus,
@@ -289,17 +293,14 @@ select:focus{
 /* ==========================================================
    SIMULATION — SPECIFIQUES
    ========================================================== */
-
-/* largeur simulation */
 body.simulation .main{ max-width:860px; }
 
-/* colonnes stables (valeurs & inputs) */
+/* colonnes stables */
 body.simulation{
-  --value-col: clamp(140px, 38vw, 210px); /* valeurs résultats */
-  --input-col: clamp(150px, 46vw, 210px); /* champs formulaire (mobile row) */
+  --value-col: clamp(140px, 38vw, 210px);
+  --input-col: clamp(150px, 46vw, 210px);
 }
 
-/* encart notice */
 .notice{
   margin-bottom:28px;
   padding:11px 16px;
@@ -336,13 +337,6 @@ body.simulation{
   color:var(--muted);
 }
 
-.form-grid .field-label small{
-  font-size:.68rem;
-  font-weight:400;
-  text-transform:none;
-  color:var(--muted);
-}
-
 .field-hint{
   margin-left:4px;
   font-size:.78rem;
@@ -365,7 +359,6 @@ body.simulation{
   padding:10px 20px;
   border-bottom:1px solid var(--light);
 }
-
 .computed-row{ background:var(--offwhite); }
 .result-row{ gap:16px; }
 
@@ -391,7 +384,6 @@ body.simulation{
 /* ==========================================================
    PARAMS — SPECIFIQUES
    ========================================================== */
-
 .header-actions{
   display:flex;
   align-items:center;
@@ -399,7 +391,6 @@ body.simulation{
   flex-wrap:wrap;
 }
 
-/* status bar */
 .status-bar{
   min-width:240px;
   padding:6px 14px;
@@ -411,19 +402,16 @@ body.simulation{
   border:1px solid rgba(255,255,255,.15);
   color:rgba(255,255,255,.5);
 }
-
 .status-bar.ok{
   background:rgba(125,212,168,.08);
   border-color:rgba(125,212,168,.4);
   color:#7dd4a8;
 }
-
 .status-bar.error{
   background:rgba(240,144,144,.08);
   border-color:rgba(240,144,144,.4);
   color:#f09090;
 }
-
 .status-bar.saving{
   background:rgba(240,192,96,.08);
   border-color:rgba(240,192,96,.4);
@@ -442,7 +430,6 @@ body.simulation{
   color:var(--muted);
 }
 
-/* table params */
 .params-table{
   background:var(--white);
   border:1px solid var(--border);
@@ -461,7 +448,6 @@ body.simulation{
   align-items:center;
   padding:10px 20px;
 }
-
 .table-header{
   background:var(--navy);
   font-size:.71rem;
@@ -484,7 +470,6 @@ body.simulation{
   font-weight:600;
   color:var(--navy);
 }
-
 .group-header::before{
   content:'';
   width:3px;
@@ -492,7 +477,6 @@ body.simulation{
   background:var(--red);
   border-radius:2px;
 }
-
 .group-header-accent{
   background:var(--navy);
   color:rgba(255,255,255,.85);
@@ -534,7 +518,6 @@ body.simulation{
   background:#fdf4f5;
 }
 
-/* toast */
 .save-toast{
   position:fixed;
   bottom:32px;
@@ -560,7 +543,8 @@ body.simulation{
 }
 
 /* ==========================================================
-   RESPONSIVE — SIMULATION MOBILE (portrait OK)
+   RESPONSIVE — SIMULATION MOBILE (ANDROID OK)
+   Le bug "calendrier disparu" est corrigé ici uniquement sur mobile
    ========================================================== */
 @media (max-width:600px){
 
@@ -593,7 +577,7 @@ body.simulation{
     margin:0;
   }
 
-  /* Tous les champs modifiables alignés à droite (même avant remplissage) */
+  /* Tous les champs modifiables alignés à droite */
   body.simulation .field input,
   body.simulation .field select{
     justify-self:end;
@@ -603,6 +587,19 @@ body.simulation{
   body.simulation .field input::placeholder{
     text-align:right;
     color:var(--muted);
+  }
+
+  /* ✅ FIX ANDROID : restaurer l’apparence native des dates (calendrier + helpers) */
+  body.simulation input[type="date"]{
+    -webkit-appearance:auto !important;
+    appearance:auto !important;
+    background:var(--input-bg);
+    padding-right:28px; /* laisse de la place à l'icône calendrier */
+  }
+
+  /* Select Android : aligne mieux la valeur affichée */
+  body.simulation select{
+    text-align-last:right;
   }
 
   /* RESULTATS & CALCULES : desktop-like */
