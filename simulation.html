@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=30"/>
+  <link rel="stylesheet" href="style.css" />
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -66,7 +66,6 @@
       <h1>Simulateur RCC</h1>
       <p>Rupture Conventionnelle Collective · Métallurgie</p>
     </div>
-    <a href="params.html" class="btn-params">⚙ Paramètres</a>
   </div>
   <!-- <div class="header-stripe"></div> -->
 </header>
@@ -84,7 +83,7 @@
 
     <div class="form-grid">
       <div class="field">
-        <div class="field-label">Statut <small>· Cadre / Non-cadre</small></div>
+        <div class="field-label">Statut <span class="field-hint">· Cadre / Non-cadre</span></div>
         <select id="B4" onchange="calculate()">
           <option value="" disabled selected>— Sélectionner —</option>
           <option value="Cadre">Cadre</option>
@@ -93,7 +92,7 @@
       </div>
 
       <div class="field">
-        <div class="field-label">Dispositif <small>· Mobilité / CFC</small></div>
+        <div class="field-label">Dispositif <span class="field-hint">· Mobilité / CFC</span></div>
         <select id="B5" onchange="calculate()">
           <option value="" disabled selected>— Sélectionner —</option>
           <option value="Mobilité">Mobilité</option>
@@ -103,12 +102,12 @@
 
       <div class="field">
         <div class="field-label">Date de naissance</div>
-        <input type="date" id="B6" placeholder="jj/mm/aaaa" min="1962-01-01" max="2007-01-01" oninput="calculate()" />
+        <input type="date" id="B6" min="1962-01-01" max="2007-01-01" oninput="calculate()" />
       </div>
 
       <div class="field">
         <div class="field-label">Date d'entrée</div>
-        <input type="date" placeholder="jj/mm/aaaa" id="B8" oninput="calculate()" />
+        <input type="date" id="B8" oninput="calculate()" />
       </div>
 
       <!-- SOLUTION 2 (PRO) : champ text, affichage formaté en € -->
@@ -225,7 +224,10 @@
 
 </main>
 
-<footer class="page-footer">CFE-CGC Métallurgie · Simulateur RCC · Usage interne</footer>
+<footer class="page-footer">
+  CFE-CGC Métallurgie · Simulateur RCC · Usage interne<br>
+  <a href="params.html" class="footer-link">⚙ Paramètres</a>
+</footer>
 
 <script>
 (() => {
@@ -548,6 +550,13 @@
       b10.addEventListener('input', () => {
         const n = parseEuroInput(b10.value);
         b10.dataset.raw = Number.isFinite(n) ? String(n) : '';
+      });
+
+      b10.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          b10.blur();
+        }
       });
     }
 
