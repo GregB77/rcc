@@ -605,3 +605,80 @@ body.simulation{
     font-size:.88rem;
   }
 }
+/* DATE INPUT CUSTOM (texte + bouton calendrier) ============================= */
+.date-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input-wrap input[type="text"] {
+  width: 100%;
+  padding-right: 36px; /* espace pour le bouton */
+}
+
+.date-cal-btn {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 34px;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-radius: 0 3px 3px 0;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color .15s, background .15s;
+}
+
+.date-cal-btn:hover {
+  color: var(--blue);
+  background: rgba(58,122,191,.07);
+}
+
+.date-picker-hidden {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  top: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+/* Feedback validation */
+.date-input-wrap input.date-valid {
+  border-color: #6dbf8a;
+}
+.date-input-wrap input.date-invalid {
+  border-color: var(--red);
+}
+
+/* Sur mobile, le champ texte s'aligne bien à droite (contrairement au type=date natif) */
+@media (max-width: 600px) {
+  .date-input-wrap {
+    justify-self: end;
+  }
+  .date-input-wrap input[type="text"] {
+    text-align: right;
+  }
+  .date-input-wrap input[type="text"]::placeholder {
+    text-align: right;
+    color: var(--muted);
+  }
+}
+
+
+/* FEEDBACK VERT — selects et autres champs valides ========================== */
+select.input-valid,
+input.input-valid {
+  border-color: #6dbf8a;
+}
+
