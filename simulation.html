@@ -420,7 +420,7 @@
       if (!dispositif) {
         labelB15.textContent = 'Indemnité retenue';
       } else {
-        const code = (dispositif === 'CFC') ? 'ILL' : 'ILC';
+        const code = (statut === 'Cadre' && dispositif === 'CFC') ? 'ILC' : 'ILL';
         labelB15.innerHTML = `Indemnité retenue : <strong>${code}</strong>`;
       }
     }
@@ -488,27 +488,38 @@
       resMob = Math.max(pMob * (1 - redSenior), indemniteCFC);
     }
 
-    const B15 = (dispositif === 'CFC') ? indemniteCFC : resMob;
+    // ----- INDEMNITÉ RETENUE -----
+// ILC uniquement si Cadre + CFC
+// sinon toujours ILL
 
-    const maxE23 = (P.E23 === 999 ? Infinity : P.E23);
-    const B16 = (dispositif === 'CFC')
-      ? 0
-      : salMensuel * Math.min(maxE23, P.E22 * anciennete);
+const isILC = (statut === 'Cadre' && dispositif === 'CFC');
 
-    const B17 = B15 + B16;
+const B15 = isILC ? indemniteCFC : resMob;
 
-    const plafondCFC = Math.min(
-      (P.E30 === 999 ? B17 : P.E30 * salMensuel),
-      (P.E31 === 999 ? B17 : P.E31)
-    );
+const maxE23 = (P.E23 === 999 ? Infinity : P.E23);
 
-    const plafondMob = Math.min(P.E24 * salMensuel, P.E25);
+const B16 = (dispositif === 'CFC')
+  ? 0
+  : salMensuel * Math.min(maxE23, P.E22 * anciennete);
 
-    const B18 = (dispositif === 'CFC')
-      ? Math.max(indemniteCFC, Math.min(B17, plafondCFC))
-      : Math.max(B15, Math.min(B17, plafondMob));
+const B17 = B15 + B16;
 
-    const B19 = (B18 <= B17) ? 'Oui' : 'Non';
+// ----- PLAFONDS -----
+
+const plafondCFC = Math.min(
+  (P.E30 === 999 ? B17 : P.E30 * salMensuel),
+  (P.E31 === 999 ? B17 : P.E31)
+);
+
+const plafondMob = Math.min(P.E24 * salMensuel, P.E25);
+
+const B18 = (dispositif === 'CFC')
+  ? Math.max(indemniteCFC, Math.min(B17, plafondCFC))
+  : Math.max(B15, Math.min(B17, plafondMob));
+
+    // ----- PLAFOND ATTEINT ? -----
+    const B19 = ((isILC && B15 > 100000) || B17 >= 100000) ? 'Oui' : 'Non';
+    
     const B20 = B18 / salMensuel;
 
     // ----- RÉMUNÉRATION -----
