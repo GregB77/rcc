@@ -488,53 +488,27 @@
       resMob = Math.max(pMob * (1 - redSenior), indemniteCFC);
     }
 
-    // ----- INDEMNITÉ RETENUE -----
-// ILC uniquement si Cadre + Mobilité
-// sinon ILL
+    const B15 = (dispositif === 'CFC') ? indemniteCFC : resMob;
 
-const isILC = (statut === 'Cadre' && dispositif === 'Mobilité');
+    const maxE23 = (P.E23 === 999 ? Infinity : P.E23);
+    const B16 = (dispositif === 'CFC')
+      ? 0
+      : salMensuel * Math.min(maxE23, P.E22 * anciennete);
 
-const B15 = (dispositif === 'CFC')
-  ? indemniteCFC
-  : resMob;
+    const B17 = B15 + B16;
 
-const maxE23 = (P.E23 === 999 ? Infinity : P.E23);
+    const plafondCFC = Math.min(
+      (P.E30 === 999 ? B17 : P.E30 * salMensuel),
+      (P.E31 === 999 ? B17 : P.E31)
+    );
 
-const B16 = (dispositif === 'CFC')
-  ? 0
-  : salMensuel * Math.min(maxE23, P.E22 * anciennete);
+    const plafondMob = Math.min(P.E24 * salMensuel, P.E25);
 
-const B17 = B15 + B16;
+    const B18 = (dispositif === 'CFC')
+      ? Math.max(indemniteCFC, Math.min(B17, plafondCFC))
+      : Math.max(B15, Math.min(B17, plafondMob));
 
-// ----- PLAFONDS -----
-
-const plafondCFC = Math.min(
-  (P.E30 === 999 ? B17 : P.E30 * salMensuel),
-  (P.E31 === 999 ? B17 : P.E31)
-);
-
-const plafondMob = Math.min(P.E24 * salMensuel, P.E25);
-
-const B18 = (dispositif === 'CFC')
-  ? Math.max(indemniteCFC, Math.min(B17, plafondCFC))
-  : Math.max(B15, Math.min(B17, plafondMob));
-
-// ----- PLAFOND ATTEINT ? -----
-// Oui si :
-// a) indemnité retenue = ILC ET indemnité retenue >= 100 000 €
-// OU
-// b) indemnité avant plafond >= 100 000 €
-
-const B19 =
-  (
-    (isILC && B15 >= 100000)
-    || B17 >= 100000
-  )
-    ? 'Oui'
-    : 'Non';
-
-
-    
+    const B19 = (B18 <= B17) ? 'Oui' : 'Non';
     const B20 = B18 / salMensuel;
 
     // ----- RÉMUNÉRATION -----
