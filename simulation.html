@@ -482,13 +482,14 @@
     const reductions = { 61: P.E17, 62: P.E18, 63: P.E19 };
     const redSenior = reductions[Math.floor(age)] ?? (age >= 64 ? P.E20 : 0);
 
-    let resMob = pMob;
+    let resMob;
 
-    if (statut === 'Cadre' && P.E16 === "Oui" && age >= 61) {
-      resMob = Math.max(pMob * (1 - redSenior), indemniteCFC);
-    }
+    if (statut === 'Cadre') {
+      resMob = pMob;
+      if (P.E16 === "Oui" && age >= 61) {resMob = Math.max(pMob * (1 - redSenior),indemniteCFC);}
+    } else {resMob = indemniteCFC;}
 
-    const B15 = (dispositif === 'CFC') ? indemniteCFC : resMob;
+    const B15 = (dispositif === 'CFC') ? indemniteCFC : resMob; 
 
     const maxE23 = (P.E23 === 999 ? Infinity : P.E23);
     const B16 = (dispositif === 'CFC')
