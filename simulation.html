@@ -420,7 +420,7 @@
       if (!dispositif) {
         labelB15.textContent = 'Indemnité retenue';
       } else {
-        const code = (dispositif === 'CFC') ? 'ILL' : 'ILC';
+        const code = (statut === 'Cadre' && dispositif === 'Mobilité') ? 'ILC' : 'ILL';
         labelB15.innerHTML = `Indemnité retenue : <strong>${code}</strong>`;
       }
     }
@@ -508,7 +508,7 @@
       ? Math.max(indemniteCFC, Math.min(B17, plafondCFC))
       : Math.max(B15, Math.min(B17, plafondMob));
 
-    const B19 = (B18 <= B17) ? 'Oui' : 'Non';
+    const B19 = (B18 < B17) ? 'Oui' : 'Non';
     const B20 = B18 / salMensuel;
 
     // ----- RÉMUNÉRATION -----
