@@ -257,6 +257,37 @@
     </div>
   </div>
 
+  <div class="card result" id="mobilite-aides-card" style="display:none;">
+    <div class="card-header">
+      <div class="card-header-dot"></div>
+      <h2>Aides à la mobilité externe</h2>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Aide à la formation diplomante</div>
+      <div class="result-value">12 000 €</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Aide à la création de micro-entreprise</div>
+      <div class="result-value">6 000 €</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Aide à l'entreprenariat (≠ micro-entreprise)</div>
+      <div class="result-value">15 000 €</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">Prime au retour à l'emploi rapide</div>
+      <div class="result-value">5 000 €</div>
+    </div>
+
+    <div class="notice" style="margin-top:16px;">
+      ⚠️ Les aides ne sont pas cumulables
+    </div>
+  </div>
+
 </main>
 
 <footer class="page-footer">
@@ -413,6 +444,11 @@
 
     const statut = dom.B4?.value || '';
     const dispositif = dom.B5?.value || '';
+
+    const aidesCard = dom['mobilite-aides-card'];
+    if (aidesCard) {
+      aidesCard.style.display = (dispositif === 'Mobilité') ? 'block' : 'none';
+    }
 
     // Label B15 (conserve ton mapping actuel)
     const labelB15 = dom.label_B15;
